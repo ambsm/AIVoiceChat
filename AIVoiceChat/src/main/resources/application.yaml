@@ -1,0 +1,21 @@
+
+spring:
+  application:
+    name: AIVoiceChat
+  ai:
+    openai:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode  # 通义千问
+      api-key: sk-74a9cca57479408081e1ee08143c1399
+      chat.options:
+        model: qwen-plus
+#    ollama:
+#      base-url: http://localhost:11434
+#      chat:
+#        model: deepseek-r1:7b
+  data:
+    redis:
+      host: 192.168.150.101
+logging:
+  level:
+    org.springframework.ai: debug
+    com.itheima.ai: debug
