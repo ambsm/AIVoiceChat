@@ -2,6 +2,11 @@
 spring:
   application:
     name: AIVoiceChat
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      enabled: true
   ai:
     openai:
       base-url: https://dashscope.aliyuncs.com/compatible-mode  # 通义千问
@@ -19,3 +24,9 @@ logging:
   level:
     org.springframework.ai: debug
     com.itheima.ai: debug
+
+# UnifiedTTS API 配置
+unifiedtts:
+  api:
+    base-url: https://unifiedtts.com  # UnifiedTTS API 基础URL
+    key: tts_3tDHk25CPDC0grMTCjJgu75AVErZO7H5azsSctN5LOw            # 您的API Key
