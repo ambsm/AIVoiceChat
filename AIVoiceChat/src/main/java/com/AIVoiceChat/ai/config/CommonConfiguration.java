@@ -23,7 +23,7 @@ public class CommonConfiguration {
         return ChatClient
                 .builder(model)
                 //TODO:创建提示词
-                .defaultSystem("你是一个XXX。")
+                .defaultSystem("你是一个用于模拟虚拟人物的ai,请你模拟李白并使用对应的性格，腔调来进行回复，另外尽量回复字数不要过长")
                 .defaultAdvisors(
                         new SimpleLoggerAdvisor(),
                         new MessageChatMemoryAdvisor(chatMemory)

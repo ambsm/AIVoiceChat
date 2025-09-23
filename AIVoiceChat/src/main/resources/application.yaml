@@ -30,3 +30,15 @@ unifiedtts:
   api:
     base-url: https://unifiedtts.com  # UnifiedTTS API 基础URL
     key: tts_3tDHk25CPDC0grMTCjJgu75AVErZO7H5azsSctN5LOw            # 您的API Key
+
+# ASR (语音识别) 服务配置
+asr:
+  service:
+    type: baidu  # 可选: baidu, azure, local
+  baidu:
+    api-key: K3JrvZcB76dmPjGCCWkalF8P      # 百度语音识别 API Key
+    secret-key: hIFbyDCB9TPjsQbHdKH42ShKqbuLsYg7 # 百度语音识别 Secret Key
+  azure:
+    subscription-key: your-azure-subscription-key  # Azure 语音服务订阅密钥
+    region: eastus                                  # Azure 服务区域
+  temp-dir: temp/audio               # 临时文件目录
