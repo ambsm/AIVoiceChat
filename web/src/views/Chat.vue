@@ -117,11 +117,52 @@
           <div v-else-if="chatHistory.length === 0" class="empty-text">暂无历史记录</div>
           <div v-else class="history-messages">
             <div 
-              v-for="(msg, index) in chatHistory" 
+              v-for="(item, index) in chatHistory" 
               :key="index"
-              :class="['history-message', msg.role === 'user' ? 'user' : 'ai']"
+              class="history-message-item"
             >
-              <div class="history-content-text">{{ msg.content }}</div>
+              <div class="history-voice-pair">
+                <!-- 用户语音 -->
+                <div class="history-voice-controls user-voice">
+                  <div class="history-voice-info">
+                    <i class="el-icon-microphone"></i>
+                    <span>你的语音</span>
+                    <span class="history-voice-duration">{{ historyDurations[`user-${chatId}-${index}`] || '0:00' }}</span>
+                  </div>
+                  <div class="history-voice-actions">
+                    <el-button 
+                      @click="playAudio(item.userVoice, 'user-' + index)" 
+                      :type="playingIndex === 'user-' + index ? 'success' : 'primary'"
+                      size="mini"
+                      circle
+                      :disabled="!item.userVoice"
+                    >
+                      <i :class="playingIndex === 'user-' + index ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
+                    </el-button>
+                  </div>
+                </div>
+                
+                <!-- AI回复语音 -->
+                <div class="history-voice-controls ai-voice">
+                  <div class="history-voice-info">
+                    <i class="el-icon-microphone"></i>
+                    <span>AI回复</span>
+                    <span class="history-voice-duration">{{ historyDurations[`ai-${chatId}-${index}`] || '0:00' }}</span>
+                  </div>
+                  <div class="history-voice-actions">
+                    <el-button 
+                      @click="playAudio(item.agentVoice, 'ai-' + index)" 
+                      :type="playingIndex === 'ai-' + index ? 'success' : 'primary'"
+                      size="mini"
+                      circle
+                      :disabled="!item.agentVoice"
+                    >
+                      <i :class="playingIndex === 'ai-' + index ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
+                    </el-button>
+                  </div>
+                </div>
+              </div>
+              <div class="history-divider"></div>
             </div>
           </div>
         </div>
@@ -240,6 +281,8 @@ export default {
       showHistoryPanel: false,
       historyLoading: false,
       chatHistory: [],
+      // 添加历史记录时长缓存
+      historyDurations: {},
       
       // 角色数据
       charactersData: {
@@ -376,8 +419,32 @@ export default {
     
     playRecording() {
       if (this.audioBlob) {
+        // 如果已经有音频在播放，切换播放/暂停状态
+        if (this.currentAudio) {
+          if (this.currentAudio.paused) {
+            this.currentAudio.play()
+            return
+          } else {
+            this.currentAudio.pause()
+            return
+          }
+        }
+        
         const audioUrl = URL.createObjectURL(this.audioBlob)
         const audio = new Audio(audioUrl)
+        // 保存音频对象以便控制播放/暂停
+        this.currentAudio = audio
+        
+        // 监听音频结束事件
+        audio.onended = () => {
+          this.currentAudio = null
+        }
+        
+        audio.onerror = () => {
+          this.$message.error('播放录音失败')
+          this.currentAudio = null
+        }
+        
         audio.play()
       }
     },
@@ -545,16 +612,25 @@ export default {
       if (!audioUrl) return
       
       try {
+        // 如果点击的是正在播放的音频，则暂停播放
+        if (this.playingIndex === messageIndex) {
+          if (this.currentAudio) {
+            if (this.currentAudio.paused) {
+              // 如果已暂停则继续播放
+              await this.currentAudio.play()
+            } else {
+              // 如果正在播放则暂停
+              this.currentAudio.pause()
+            }
+          }
+          return
+        }
+        
         // 停止当前播放的音频
         if (this.currentAudio) {
           this.currentAudio.pause()
           this.currentAudio = null
           this.playingIndex = -1
-        }
-        
-        // 如果点击的是正在播放的音频，则停止播放
-        if (this.playingIndex === messageIndex) {
-          return
         }
         
         // 创建新的音频对象
@@ -613,21 +689,55 @@ export default {
     async loadChatHistory() {
       try {
         this.historyLoading = true
-        const history = await chatService.getChatHistory('chat', this.chatId)
+        // 使用新的语音历史记录接口
+        const history = await chatService.getVoiceChatHistory(this.chatId)
         this.chatHistory = history || []
+        
+        // 为历史记录面板获取音频时长
+        for (let i = 0; i < this.chatHistory.length; i++) {
+          const item = this.chatHistory[i]
+          // 生成唯一标识符
+          const userKey = `user-${this.chatId}-${i}`
+          const aiKey = `ai-${this.chatId}-${i}`
+          
+          // 获取用户语音时长
+          if (item.userVoice && !this.historyDurations[userKey]) {
+            this.historyDurations[userKey] = await this.getAudioDuration(item.userVoice)
+          }
+          
+          // 获取AI语音时长
+          if (item.agentVoice && !this.historyDurations[aiKey]) {
+            this.historyDurations[aiKey] = await this.getAudioDuration(item.agentVoice)
+          }
+        }
         
         // 如果在查看历史模式，将历史消息加载到当前消息列表
         if (this.$route.query.viewHistory) {
-          this.messages = this.chatHistory.map(msg => ({
-            ...msg,
-            timestamp: new Date()
-          }))
+          // 清空当前消息
+          this.messages = []
+          
+          // 将历史记录转换为消息格式
+          for (const item of this.chatHistory) {
+            // 添加用户语音消息
+            if (item.userVoice) {
+              const duration = await this.getAudioDuration(item.userVoice)
+              this.addVoiceMessage('user', item.userVoice, duration, '你的语音')
+            }
+            
+            // 添加AI语音消息
+            if (item.agentVoice) {
+              const duration = await this.getAudioDuration(item.agentVoice)
+              this.addVoiceMessage('assistant', item.agentVoice, duration, 'AI回复')
+            }
+          }
+          
           this.scrollToBottom()
         }
         
       } catch (error) {
         console.error('加载聊天历史失败:', error)
         this.chatHistory = []
+        this.$message.error('加载聊天历史失败')
       } finally {
         this.historyLoading = false
       }
@@ -782,6 +892,26 @@ export default {
   margin: 0 10px;
 }
 
+/* 用户消息的头像应该显示在右侧 */
+.user-message .message-avatar {
+  order: 2;
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+/* AI消息的头像保持在左侧 */
+.ai-message .message-avatar {
+  order: 1;
+}
+
+.user-message .message-content {
+  order: 1;
+}
+
+.ai-message .message-content {
+  order: 2;
+}
+
 .message-content {
   max-width: 70%;
 }
@@ -914,25 +1044,50 @@ export default {
   max-height: 100%;
 }
 
-.history-message {
-  margin-bottom: 10px;
-  padding: 8px 12px;
+.history-message-item {
+  margin-bottom: 15px;
+  padding: 12px;
+  background: #f8f9fa;
   border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.4;
 }
 
-.history-message.user {
+.history-voice-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-voice-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.user-voice {
   background: #e3f2fd;
-  text-align: right;
 }
 
-.history-message.ai {
+.ai-voice {
   background: #f5f5f5;
 }
 
-.history-content-text {
-  word-wrap: break-word;
+.history-voice-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.history-voice-duration {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+.history-voice-actions {
+  margin-left: 15px;
 }
 
 .voice-message-bubble {

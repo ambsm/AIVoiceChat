@@ -20,4 +20,5 @@ public interface ChatHistoryRepository {
     List<String> getChatIds(String type);
 
     void saveVoice(String chatId, HashMap<String, Object> result);
+
 }

@@ -29,6 +29,9 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
 
     private Map<String, List<String>> chatHistory;
 
+    // 用于存储语音聊天历史记录
+    private Map<String, List<HashMap<String, Object>>> voiceHistory;
+
     private final ObjectMapper objectMapper;
 
     private final ChatMemory chatMemory;
@@ -60,35 +63,75 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
      */
     @Override
     public void saveVoice(String chatId, HashMap<String, Object> result) {
-        //保存到voice-history.json中 结构为 {chatId: [List<HashMap>]}
-
+        // 初始化voiceHistory如果为null
+        if (this.voiceHistory == null) {
+            this.voiceHistory = new HashMap<>();
+        }
+        
+        // 添加时间戳字段
+        if (!result.containsKey("timestamp")) {
+            result.put("timestamp", System.currentTimeMillis());
+        }
+        
+        // 获取指定chatId的语音历史记录列表，如果不存在则创建新的列表
+        List<HashMap<String, Object>> voiceList = this.voiceHistory.computeIfAbsent(chatId, k -> new ArrayList<>());
+        
+        // 将新的语音识别结果添加到列表中
+        voiceList.add(result);
     }
-
+    
+    /**
+     * 获取指定chatId的语音聊天历史记录
+     * @param chatId
+     * @return 语音历史记录列表
+     */
+    public List<HashMap<String, Object>> getVoiceHistory(String chatId) {
+        if (this.voiceHistory == null) {
+            return new ArrayList<>();
+        }
+        return this.voiceHistory.getOrDefault(chatId, new ArrayList<>());
+    }
 
     @PostConstruct
     private void init() {
         // 1.初始化会话历史记录
         this.chatHistory = new HashMap<>();
-        // 2.读取本地会话历史和会话记忆
+        // 2.初始化语音历史记录
+        this.voiceHistory = new HashMap<>();
+        // 3.读取本地会话历史和会话记忆
         FileSystemResource historyResource = new FileSystemResource("chat-history.json");
         FileSystemResource memoryResource = new FileSystemResource("chat-memory.json");
-        if (!historyResource.exists()) {
-            return;
-        }
+        FileSystemResource voiceHistoryResource = new FileSystemResource("voice-history.json");
+        
         try {
             // 会话历史
-            Map<String, List<String>> chatIds = this.objectMapper.readValue(historyResource.getInputStream(), new TypeReference<>() {
-            });
-            if (chatIds != null) {
-                this.chatHistory = chatIds;
+            if (historyResource.exists()) {
+                Map<String, List<String>> chatIds = this.objectMapper.readValue(historyResource.getInputStream(), new TypeReference<>() {
+                });
+                if (chatIds != null) {
+                    this.chatHistory = chatIds;
+                }
             }
+            
             // 会话记忆
-            Map<String, List<Msg>> memory = this.objectMapper.readValue(memoryResource.getInputStream(), new TypeReference<>() {
-            });
-            if (memory != null) {
-                memory.forEach(this::convertMsgToMessage);
+            if (memoryResource.exists()) {
+                Map<String, List<Msg>> memory = this.objectMapper.readValue(memoryResource.getInputStream(), new TypeReference<>() {
+                });
+                if (memory != null) {
+                    memory.forEach(this::convertMsgToMessage);
+                }
+            }
+            
+            // 语音历史记录
+            if (voiceHistoryResource.exists()) {
+                Map<String, List<HashMap<String, Object>>> voiceHistory = this.objectMapper.readValue(voiceHistoryResource.getInputStream(), new TypeReference<>() {
+                });
+                if (voiceHistory != null) {
+                    this.voiceHistory = voiceHistory;
+                }
             }
         } catch (IOException ex) {
+            log.error("读取历史记录文件时发生错误", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -99,16 +142,22 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
 
     @PreDestroy
     private void persistent() {
+        //触发持久化
+        log.info("持久化开始...");
         String history = toJsonString(this.chatHistory);
         String memory = getMemoryJsonString();
+        String voiceHistory = toJsonString(this.voiceHistory);
         FileSystemResource historyResource = new FileSystemResource("chat-history.json");
         FileSystemResource memoryResource = new FileSystemResource("chat-memory.json");
+        FileSystemResource voiceHistoryResource = new FileSystemResource("voice-history.json");
         try (
                 PrintWriter historyWriter = new PrintWriter(historyResource.getOutputStream(), true, StandardCharsets.UTF_8);
-                PrintWriter memoryWriter = new PrintWriter(memoryResource.getOutputStream(), true, StandardCharsets.UTF_8)
+                PrintWriter memoryWriter = new PrintWriter(memoryResource.getOutputStream(), true, StandardCharsets.UTF_8);
+                PrintWriter voiceHistoryWriter = new PrintWriter(voiceHistoryResource.getOutputStream(), true, StandardCharsets.UTF_8)
         ) {
             historyWriter.write(history);
             memoryWriter.write(memory);
+            voiceHistoryWriter.write(voiceHistory);
         } catch (IOException ex) {
             log.error("IOException occurred while saving vector store file.", ex);
             throw new RuntimeException(ex);

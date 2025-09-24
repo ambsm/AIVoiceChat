@@ -2,6 +2,7 @@ package com.AIVoiceChat.ai.controller;
 
 import cn.hutool.json.JSONObject;
 import com.AIVoiceChat.ai.repository.ChatHistoryRepository;
+import com.AIVoiceChat.ai.service.ChatService;
 import com.AIVoiceChat.ai.utils.AliyunASRUtils;
 import com.AIVoiceChat.ai.utils.TTSUtils;
 import com.AIVoiceChat.ai.utils.UnifiedttsUtils;
@@ -11,9 +12,7 @@ import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
@@ -35,9 +34,31 @@ public class ChatController {
     @Autowired
     AliyunASRUtils aliyunASRUtils;
 
+    @Autowired
+    private ChatService chatService;
     private final ChatClient chatClient;
 
     private final ChatHistoryRepository chatHistoryRepository;
+
+    /**
+     * 获取角色信息
+     * @return
+     */
+    @GetMapping("/getCharacter")
+    public HashMap<String, Object> getCharacterInfo() {
+        HashMap<String, Object> characterInfo = new HashMap<>();
+        return null;
+    }
+    /**
+     * 生成会话id
+     * @param Character 人物
+     * @return chatId
+     */
+    @GetMapping("/generateChatId")
+    public String generateChatId(@PathVariable("Character") String Character) {
+        return chatService.generateChatId( Character);
+    }
+
 
     @RequestMapping(value = "/chat", produces = "text/html;charset=utf-8")
     public Flux<String> chat(

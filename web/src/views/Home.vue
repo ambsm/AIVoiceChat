@@ -78,8 +78,8 @@
           @click="viewChatHistory(chatId)"
         >
           <div class="history-info">
-            <h4>会话 {{ chatId }}</h4>
-            <p class="history-time">点击查看详情</p>
+            <h4>语音会话 {{ chatId.substring(0, 8) }}</h4>
+            <p class="history-time">点击查看详情和播放音频</p>
           </div>
           <el-button size="mini" type="primary">查看</el-button>
         </div>
@@ -137,7 +137,9 @@ export default {
     async loadChatHistory() {
       try {
         this.historyLoading = true
-        this.chatHistoryList = await chatService.getChatHistoryList('chat')
+        // 根据后端接口文档，获取语音聊天历史列表应该使用 'voice' 类型
+        // 接口: GET /ai/history/{type} 其中 type = voice
+        this.chatHistoryList = await chatService.getChatHistoryList('voice')
       } catch (error) {
         console.error('加载聊天历史失败:', error)
         this.$message.error('加载聊天历史失败')
