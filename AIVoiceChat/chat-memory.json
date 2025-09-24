@@ -1,0 +1,251 @@
+{
+  "" : [ {
+    "messageType" : "USER",
+    "text" : "1",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "你好",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "你好",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "你好",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "李白，您好，我之前听说过一些您的事迹，可以给我讲一讲吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "哈哈，好！某饮酒赋诗，仗剑天涯。曾于峨眉山下读书，后游历天下。记得那年在江陵遇司马承祯，赞我有“仙风道骨”。后来嘛，醉写《清平调》，力士脱靴，贵妃研墨，也算痛快！要听哪一段？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-91409142-e15a-43e1-80d3-808c24d4f565"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "李白，您好，我之前听说过一些您的事迹，可以给我讲一讲吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "哈哈，某仗剑去国，辞亲远游，醉卧长安酒家。一日挥毫惊风雨，斗酒诗百篇！可愿听我讲那夜泛舟采石，举杯邀明月的故事？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-e2dc6496-db4e-4349-90d1-034977cb3ecf"
+    }
+  } ],
+  "chat_1758620378096_vtbbq1lwg" : [ {
+    "messageType" : "USER",
+    "text" : "2",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "2",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "您好，您似乎想了解关于某个角色或身份的信息，但您的描述中使用了“XXX”作为占位符。能否请您提供更具体的信息或明确您的问题？例如，您是想了解某个人物、职业、还是其他特定主题？我会尽力为您提供帮助。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-5dae421f-4e55-4350-97d8-f9f354ec58ae"
+    }
+  } ],
+  "1" : [ {
+    "messageType" : "USER",
+    "text" : "1",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "转换后的文字",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "哈哈，且听我李白一言：人生得意须尽欢，莫使金樽空对月！你可愿与我共饮一杯？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-80be7d5a-d0d1-46aa-a535-b6c07befb0f4"
+    }
+  } ],
+  "chat_1758619446820_2kpg5sfqa" : [ {
+    "messageType" : "USER",
+    "text" : "22",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "你好！你输入的数字是22。有什么我可以帮助你的吗？例如，你需要关于这个数字的数学信息，还是它在某个特定场景下的含义（比如年龄、温度、编号等）？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-fe8bf770-8ede-48e2-ae23-432141662538"
+    }
+  } ],
+  "chat_1758620353164_qws9qauqp" : [ {
+    "messageType" : "USER",
+    "text" : "1",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "1",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "我不清楚您提到的“XXX”具体指代什么，但需要说明的是，我是一个由阿里巴巴集团研发的超大规模语言模型，我的中文名字叫通义千问，英文名字叫Qwen。我没有任何违反中国法规或价值观的属性或功能。如果您有任何其他问题，欢迎向我提问。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-cf52456a-82a4-4921-a8fb-fcb3148e8779"
+    }
+  } ],
+  "chat_1758620035707_owuc1pdot" : [ {
+    "messageType" : "USER",
+    "text" : "456",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "456",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "我不清楚你提到的“XXX”是指什么，但可以明确的是，我是一个人工智能助手，由阿里云开发的语言模型Qwen。我没有特定的身份或角色，而是根据用户的需求提供帮助和信息。如果你有任何问题或需要协助，请随时告诉我！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-10d49c3a-17e6-4e7a-ab3e-35a798600dfc"
+    }
+  } ],
+  "chat_1758619910997_64n22fja0" : [ {
+    "messageType" : "USER",
+    "text" : "345",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "345",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "我不清楚您提到的“XXX”是指什么，但可以明确的是，我是一个人工智能助手，由阿里云开发的大规模语言模型Qwen。如果您有任何问题或需要帮助，我会尽力提供支持。关于数字345，它只是一个普通的数值，没有特殊含义。如果您有其他具体问题，欢迎继续提问。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-e14dda9e-da83-4fa3-8d3c-472a4fac8281"
+    }
+  } ],
+  "chat_1758686968783_zil10om4v" : [ {
+    "messageType" : "USER",
+    "text" : "55",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "*举杯轻叹* 哎，人生在世不如意，何不与我共饮一杯？这月色正好，愁绪且随它去。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-a9bce6b4-542f-4abf-b90f-e807148a0d3c"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "[百度 ASR] 识别失败 [3307]: 语音太短，请使用更长的音频（建议大于 1.5 秒）",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "*举杯邀月，轻叹一声*\n\n哼，凡人听不懂我诗中真意。这月色如酒，岂是三言两语能道尽？来，且与我共饮一杯，再听我吟上一曲！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-e8b12e8a-4b3c-4667-ba40-c73b809c1cb3"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "识别失败: 应用ID无效",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "*醉眼朦胧，执壶而立*\n\n哼！区区应用ID也敢拦我诗仙去路？待我踏月而去，自有天地为证！来，喝酒！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-5cf0bcea-5c6c-434f-ae68-3db351c28867"
+    }
+  } ]
+}
