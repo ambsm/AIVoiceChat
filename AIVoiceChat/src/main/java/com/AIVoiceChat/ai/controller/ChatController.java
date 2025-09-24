@@ -2,6 +2,7 @@ package com.AIVoiceChat.ai.controller;
 
 import cn.hutool.json.JSONObject;
 import com.AIVoiceChat.ai.repository.ChatHistoryRepository;
+import com.AIVoiceChat.ai.utils.AliyunASRUtils;
 import com.AIVoiceChat.ai.utils.TTSUtils;
 import com.AIVoiceChat.ai.utils.UnifiedttsUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +31,9 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 public class ChatController {
     @Autowired
     private TTSUtils ttsUtils;
+
+    @Autowired
+    AliyunASRUtils aliyunASRUtils;
 
     private final ChatClient chatClient;
 
@@ -58,15 +63,17 @@ public class ChatController {
      * @param files
      * @return
      */
-    @RequestMapping(value = "/voiceChat", produces = "text/html;charset=utf-8")
-    public Object voiceChat(
+    @RequestMapping(value = "/voiceChat")
+    public HashMap<String, Object> voiceChat(
             @RequestParam("prompt") MultipartFile  voiceFile,
             @RequestParam("chatId") String chatId,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+            @RequestParam(value = "files", required = false) List<MultipartFile> files) throws Exception {
         // 1.保存会话id
         chatHistoryRepository.save("chat", chatId);
-        String prompt = ttsUtils.convertSpeechToTextIntelligent(voiceFile);
-
+        //用户语音转换链接
+        File tempFile = aliyunASRUtils.saveToTempFile(voiceFile);
+        String fileUrl = aliyunASRUtils.uploadToOSS(tempFile, voiceFile.getOriginalFilename());
+        String prompt = aliyunASRUtils.callAliyunASRAPI(fileUrl);
         //此处也使用流式传输时因为防止过长时间无响应导致连接断开
         Flux<String> stringFlux = textChat(prompt, chatId);
         String fullResponse = stringFlux.collect(StringBuilder::new,
@@ -74,15 +81,18 @@ public class ChatController {
                 .map(StringBuilder::toString)
                 .block(); // ⚠️ 仍然阻塞，但你明确需要完整结果
         JSONObject entries = ttsUtils.convertTextToSpeechByLiba(fullResponse);
+        HashMap<String, Object> result = new HashMap<>();
         try {
             Map<String, Object> dataMap = entries.getBean("data", Map.class);
             Object o = dataMap.get("audio_url");
-            return o;
+            result.put("agentVoice", o);
+            result.put("userVoice", fileUrl);
+            chatHistoryRepository.saveVoice(chatId, result);
+            return result;
         } catch (Exception e){
             e.printStackTrace();
         }
-
-        return null;
+        return result;
 
     }
 

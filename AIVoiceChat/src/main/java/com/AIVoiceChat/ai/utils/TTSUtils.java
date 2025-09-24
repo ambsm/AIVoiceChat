@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -28,7 +30,6 @@ public class TTSUtils {
     
     @Autowired
     private UnifiedttsUtils unifiedttsUtils;
-    
     // 配置文件中的 ASR 服务配置
     @Value("${asr.service.type:baidu}")
     private String asrServiceType;
@@ -47,6 +48,10 @@ public class TTSUtils {
     
     @Value("${asr.temp-dir:temp/audio}")
     private String tempDir;
+
+    @Autowired
+    private AliyunASRUtils aliyunASRUtils;
+
     /**
      * 智能语音识别接口 - 根据用户偏好自动处理多声道问题
      * 优先使用百度，如果遇到声道问题自动切换到 Azure
@@ -186,7 +191,27 @@ public class TTSUtils {
             }
         }
     }
-    
+    /**
+     * 使用阿里云 TTS 服务进行语音识别
+     */
+    public String convertSpeechToTextByAliyun(MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
+
+            // 使用新的阿里云工具类
+            String result = aliyunASRUtils.convertSpeechToText(file);
+
+            response.put("success", true);
+            response.put("result", result);
+            response.put("service", "阿里云智能语音交互");
+            response.put("filename", file.getOriginalFilename());
+            response.put("fileSize", file.getSize());
+            response.put("supportedFormats", new String[]{"wav", "mp3", "aac", "flac", "amr", "m4a"});
+            response.put("maxFileSize", "512MB");
+            response.put("apiType", "录音文件识别");
+            response.put("configStatus", aliyunASRUtils.getConfigStatus());
+
+            return response.get("result").toString();
+    }
     /**
      * 使用 Azure Speech Services 进行语音识别
      */
@@ -563,4 +588,5 @@ public class TTSUtils {
         return result;
 
     }
+
 }

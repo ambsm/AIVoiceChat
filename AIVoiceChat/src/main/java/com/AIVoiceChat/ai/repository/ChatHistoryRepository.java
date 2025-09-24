@@ -1,5 +1,6 @@
 package com.AIVoiceChat.ai.repository;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface ChatHistoryRepository {
@@ -17,4 +18,6 @@ public interface ChatHistoryRepository {
      * @return 会话ID列表
      */
     List<String> getChatIds(String type);
+
+    void saveVoice(String chatId, HashMap<String, Object> result);
 }

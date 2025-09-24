@@ -21,15 +21,6 @@
       </div>
       <div class="header-right">
         <el-button 
-          @click="toggleVoiceMode" 
-          :type="isVoiceMode ? 'primary' : 'default'"
-          size="small"
-          class="voice-toggle-btn"
-        >
-          <i :class="isVoiceMode ? 'el-icon-microphone' : 'el-icon-chat-dot-round'"></i>
-          {{ isVoiceMode ? '语音模式' : '文字模式' }}
-        </el-button>
-        <el-button 
           @click="showHistoryPanel = !showHistoryPanel" 
           type="default"
           size="small"
@@ -51,11 +42,11 @@
             <div class="welcome-text">
               <h4>你好！我是{{ currentCharacter.name }}</h4>
               <p>{{ currentCharacter.description }}</p>
-              <p>你想和我聊什么呢？</p>
+              <p>🎤 请点击下方的录音按钮开始语音对话</p>
             </div>
           </div>
           
-          <!-- 聊天消息列表 -->
+          <!-- 语音聊天消息列表 -->
           <div 
             v-for="(message, index) in messages" 
             :key="index"
@@ -66,15 +57,31 @@
               <span v-else>{{ currentCharacter.avatar }}</span>
             </div>
             <div class="message-content">
-              <div class="message-bubble">
-                <div class="message-text">
+              <div class="voice-message-bubble">
+                <div v-if="message.type === 'voice'" class="voice-controls">
+                  <div class="voice-info">
+                    <i class="el-icon-microphone"></i>
+                    <span>{{ message.role === 'user' ? '你的语音' : 'AI回复' }}</span>
+                    <span class="voice-duration">{{ message.duration || '0:00' }}</span>
+                  </div>
+                  <div class="voice-actions">
+                    <el-button 
+                      @click="playAudio(message.audioUrl, index)" 
+                      :type="playingIndex === index ? 'success' : 'primary'"
+                      size="mini"
+                      circle
+                      :disabled="!message.audioUrl"
+                    >
+                      <i :class="playingIndex === index ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
+                    </el-button>
+                  </div>
+                </div>
+                <div v-else class="text-message">
                   <StreamingText 
-                    v-if="message.role === 'assistant'"
                     :text="message.content"
                     :is-streaming="isLoading && index === messages.length - 1"
                     :speed="30"
                   />
-                  <span v-else>{{ message.content }}</span>
                 </div>
                 <div class="message-time">{{ formatTime(message.timestamp) }}</div>
               </div>
@@ -121,101 +128,72 @@
       </div>
     </div>
 
-    <!-- 底部输入区域 -->
-    <div class="chat-input-area">
-      <!-- 文字输入模式 -->
-      <div v-if="!isVoiceMode" class="text-input-container">
-        <div class="input-wrapper">
-          <el-input
-            v-model="inputMessage"
-            type="textarea"
-            :rows="1"
-            resize="none"
-            placeholder="输入你想说的话..."
-            @keydown.enter.prevent="handleEnterKey"
-            class="message-input"
-            ref="messageInput"
-          ></el-input>
-          <div class="input-actions">
-            <el-button 
-              @click="sendMessage" 
-              type="primary" 
-              :disabled="!inputMessage.trim() || isLoading"
-              class="send-btn"
-            >
-              <i class="el-icon-s-promotion"></i>
-              发送
-            </el-button>
-          </div>
+    <!-- 底部语音输入区域 -->
+    <div class="voice-input-area">
+      <div class="voice-controls">
+        <div class="voice-status">
+          <span v-if="!isRecording && !audioBlob">🎤 点击录音按钮开始语音对话</span>
+          <span v-else-if="isRecording">🔴 正在录音中... {{ recordingTime }}s</span>
+          <span v-else-if="audioBlob">✅ 录音完成，点击发送或重新录制</span>
         </div>
-      </div>
-
-      <!-- 语音输入模式 -->
-      <div v-else class="voice-input-container">
-        <div class="voice-controls">
-          <div class="voice-status">
-            <span v-if="!isRecording && !audioBlob">点击按钮开始录音</span>
-            <span v-else-if="isRecording">正在录音中... {{ recordingTime }}s</span>
-            <span v-else-if="audioBlob">录音完成，点击发送</span>
-          </div>
+        
+        <div class="voice-buttons">
+          <el-button 
+            v-if="!isRecording && !audioBlob"
+            @click="startRecording" 
+            type="danger" 
+            class="record-btn"
+            size="large"
+            circle
+            :disabled="isLoading"
+          >
+            <i class="el-icon-microphone"></i>
+          </el-button>
           
-          <div class="voice-buttons">
+          <template v-else-if="isRecording">
             <el-button 
-              v-if="!isRecording && !audioBlob"
-              @click="startRecording" 
-              type="danger" 
-              class="record-btn"
+              @click="stopRecording" 
+              type="success" 
+              class="stop-btn"
               size="large"
               circle
             >
-              <i class="el-icon-microphone"></i>
+              <i class="el-icon-video-pause"></i>
+            </el-button>
+          </template>
+          
+          <template v-else-if="audioBlob">
+            <el-button 
+              @click="playRecording" 
+              type="info" 
+              class="play-btn"
+              size="large"
+              circle
+            >
+              <i class="el-icon-video-play"></i>
             </el-button>
             
-            <template v-else-if="isRecording">
-              <el-button 
-                @click="stopRecording" 
-                type="success" 
-                class="stop-btn"
-                size="large"
-                circle
-              >
-                <i class="el-icon-video-pause"></i>
-              </el-button>
-            </template>
+            <el-button 
+              @click="sendVoiceMessage" 
+              type="primary" 
+              class="send-voice-btn"
+              size="large"
+              :disabled="isLoading"
+            >
+              <i class="el-icon-s-promotion"></i>
+              发送语音
+            </el-button>
             
-            <template v-else-if="audioBlob">
-              <el-button 
-                @click="playRecording" 
-                type="info" 
-                class="play-btn"
-                size="large"
-                circle
-              >
-                <i class="el-icon-video-play"></i>
-              </el-button>
-              
-              <el-button 
-                @click="sendVoiceMessage" 
-                type="primary" 
-                class="send-voice-btn"
-                size="large"
-                :disabled="isLoading"
-              >
-                <i class="el-icon-s-promotion"></i>
-                发送语音
-              </el-button>
-              
-              <el-button 
-                @click="cancelRecording" 
-                type="default" 
-                class="cancel-btn"
-                size="large"
-              >
-                <i class="el-icon-delete"></i>
-                重录
-              </el-button>
-            </template>
-          </div>
+            <el-button 
+              @click="cancelRecording" 
+              type="default" 
+              class="cancel-btn"
+              size="large"
+            >
+              <i class="el-icon-delete"></i>
+              重录
+            </el-button>
+          </template>
         </div>
       </div>
     </div>
@@ -246,15 +224,17 @@ export default {
       
       // 消息相关
       messages: [],
-      inputMessage: '',
       
       // 语音相关
-      isVoiceMode: false,
       isRecording: false,
       recordingTime: 0,
       mediaRecorder: null,
       audioBlob: null,
       recordingTimer: null,
+      
+      // 音频播放
+      currentAudio: null,
+      playingIndex: -1,
       
       // 历史记录
       showHistoryPanel: false,
@@ -263,23 +243,11 @@ export default {
       
       // 角色数据
       charactersData: {
-        'character-a': {
-          id: 'character-a',
-          name: '角色A - 智慧导师',
-          avatar: '🧙‍♂️',
-          description: '拥有丰富知识的智慧导师，可以为你答疑解惑，提供人生指导'
-        },
-        'character-b': {
-          id: 'character-b',
-          name: '角色B - 活力伙伴', 
-          avatar: '🌟',
-          description: '充满活力的年轻伙伴，喜欢聊天、分享生活中的趣事'
-        },
-        'character-c': {
-          id: 'character-c',
-          name: '角色C - 专业助手',
-          avatar: '👔', 
-          description: '专业的工作助手，帮助你解决工作中的问题，提供专业建议'
+        'voice-ai': {
+          id: 'voice-ai',
+          name: 'AI语音助手',
+          avatar: '🎤',
+          description: '智能语音AI助手，支持流畅的语音对话交互'
         }
       }
     }
@@ -317,74 +285,32 @@ export default {
     },
     
     focusInput() {
-      this.$nextTick(() => {
-        if (this.$refs.messageInput) {
-          this.$refs.messageInput.focus()
-        }
-      })
+      // 语音模式下不需要焦点输入框
     },
     
     goBack() {
       this.$router.push({ name: 'Home' })
     },
     
-    // 文本聊天相关方法
-    handleEnterKey(event) {
-      if (!event.shiftKey) {
-        this.sendMessage()
-      }
-    },
-    
-    async sendMessage() {
-      if (!this.inputMessage.trim() || this.isLoading) return
-      
-      const message = this.inputMessage.trim()
-      this.inputMessage = ''
-      
-      // 添加用户消息
-      this.addMessage('user', message)
-      
-      // 添加AI消息占位符，用于实时更新
-      const aiMessageIndex = this.messages.length
-      this.addMessage('assistant', '正在思考...')
-      
-      try {
-        this.isLoading = true
-        this.chatStatus = '思考中...'
-        
-        // 调用流式聊天API
-        await chatService.sendMessage(
-          message, 
-          this.chatId, 
-          null,
-          (chunk, fullResponse) => {
-            // 实时更新AI消息内容
-            if (this.messages[aiMessageIndex]) {
-              this.messages[aiMessageIndex].content = fullResponse
-              this.chatStatus = `正在回复... (${fullResponse.length} 字)`
-              this.scrollToBottom()
-            }
-          }
-        )
-        
-      } catch (error) {
-        console.error('发送消息失败:', error)
-        // 更新错误消息
-        if (this.messages[aiMessageIndex]) {
-          this.messages[aiMessageIndex].content = '抱歉，网络连接出现问题，请稍后再试。'
-        }
-        this.$message.error('发送消息失败')
-      } finally {
-        this.isLoading = false
-        this.chatStatus = '在线'
-        this.focusInput()
-      }
-    },
+    // 语音聊天相关方法
     
     addMessage(role, content) {
       this.messages.push({
         role,
         content,
+        type: 'text',
+        timestamp: new Date()
+      })
+      this.scrollToBottom()
+    },
+    
+    addVoiceMessage(role, audioUrl, duration, description) {
+      this.messages.push({
+        role,
+        type: 'voice',
+        audioUrl,
+        duration,
+        content: description || '语音消息',
         timestamp: new Date()
       })
       this.scrollToBottom()
@@ -404,15 +330,6 @@ export default {
         hour: '2-digit', 
         minute: '2-digit' 
       })
-    },
-    
-    // 语音聊天相关方法
-    toggleVoiceMode() {
-      this.isVoiceMode = !this.isVoiceMode
-      if (!this.isVoiceMode) {
-        this.cancelRecording()
-        this.focusInput()
-      }
     },
     
     async startRecording() {
@@ -475,27 +392,43 @@ export default {
         // 创建音频文件，自动处理为标准格式
         const audioFile = await this.processAudioFile(this.audioBlob)
         
-        // 添加用户语音消息提示
-        this.addMessage('user', '🎤 发送了一段语音')
+        // 添加用户语音消息
+        const userMessageIndex = this.messages.length
+        this.addVoiceMessage('user', null, null, '你的语音')
         
-        // 添加AI消息占位符，用于实时更新
+        // 添加AI消息占位符
         const aiMessageIndex = this.messages.length
-        this.addMessage('assistant', '正在识别语音...')
+        this.addVoiceMessage('assistant', null, null, 'AI回复')
         
-        // 调用流式语音聊天API
-        await chatService.sendVoiceMessage(
+        // 调用语音聊天API
+        const response = await chatService.sendVoiceMessage(
           this.chatId, 
-          audioFile, 
-          null,
-          (chunk, fullResponse) => {
-            // 实时更新AI消息内容
-            if (this.messages[aiMessageIndex]) {
-              this.messages[aiMessageIndex].content = fullResponse
-              this.chatStatus = `正在回复... (${fullResponse.length} 字)`
-              this.scrollToBottom()
-            }
-          }
+          audioFile
         )
+        
+        // 处理后端返回的音频链接
+        if (response && typeof response === 'object') {
+          // 更新用户语音消息的链接
+          if (response.userVoice && this.messages[userMessageIndex]) {
+            this.messages[userMessageIndex].audioUrl = response.userVoice
+            this.messages[userMessageIndex].duration = await this.getAudioDuration(response.userVoice)
+          }
+          
+          // 更新AI语音消息的链接
+          if (response.agentVoice && this.messages[aiMessageIndex]) {
+            this.messages[aiMessageIndex].audioUrl = response.agentVoice
+            this.messages[aiMessageIndex].duration = await this.getAudioDuration(response.agentVoice)
+            
+            // 自动播放AI回复
+            setTimeout(() => {
+              this.playAudio(response.agentVoice, aiMessageIndex)
+            }, 500)
+          }
+        } else {
+          // 处理错误情况
+          this.messages[aiMessageIndex].content = '抱歉，语音处理失败。'
+          this.messages[aiMessageIndex].type = 'text'
+        }
         
         this.cancelRecording()
         
@@ -505,8 +438,7 @@ export default {
         const aiMessageIndex = this.messages.length - 1
         if (this.messages[aiMessageIndex] && this.messages[aiMessageIndex].role === 'assistant') {
           this.messages[aiMessageIndex].content = '抱歉，语音处理出现问题，请稍后再试。'
-        } else {
-          this.addMessage('assistant', '抱歉，语音处理出现问题，请稍后再试。')
+          this.messages[aiMessageIndex].type = 'text'
         }
         this.$message.error('发送语音消息失败')
       } finally {
@@ -608,6 +540,66 @@ export default {
       return buffer
     },
     
+    // 音频播放相关方法
+    async playAudio(audioUrl, messageIndex) {
+      if (!audioUrl) return
+      
+      try {
+        // 停止当前播放的音频
+        if (this.currentAudio) {
+          this.currentAudio.pause()
+          this.currentAudio = null
+          this.playingIndex = -1
+        }
+        
+        // 如果点击的是正在播放的音频，则停止播放
+        if (this.playingIndex === messageIndex) {
+          return
+        }
+        
+        // 创建新的音频对象
+        this.currentAudio = new Audio(audioUrl)
+        this.playingIndex = messageIndex
+        
+        // 监听音频事件
+        this.currentAudio.onended = () => {
+          this.playingIndex = -1
+          this.currentAudio = null
+        }
+        
+        this.currentAudio.onerror = () => {
+          this.$message.error('音频播放失败')
+          this.playingIndex = -1
+          this.currentAudio = null
+        }
+        
+        // 开始播放
+        await this.currentAudio.play()
+        
+      } catch (error) {
+        console.error('播放音频失败:', error)
+        this.$message.error('音频播放失败')
+        this.playingIndex = -1
+        this.currentAudio = null
+      }
+    },
+    
+    // 获取音频时长
+    async getAudioDuration(audioUrl) {
+      return new Promise((resolve) => {
+        const audio = new Audio(audioUrl)
+        audio.onloadedmetadata = () => {
+          const duration = audio.duration
+          const minutes = Math.floor(duration / 60)
+          const seconds = Math.floor(duration % 60)
+          resolve(`${minutes}:${seconds.toString().padStart(2, '0')}`)
+        }
+        audio.onerror = () => {
+          resolve('0:00')
+        }
+      })
+    },
+    
     cancelRecording() {
       if (this.isRecording) {
         this.stopRecording()
@@ -648,6 +640,12 @@ export default {
       this.stopRecording()
     }
     clearInterval(this.recordingTimer)
+    
+    // 清理音频播放资源
+    if (this.currentAudio) {
+      this.currentAudio.pause()
+      this.currentAudio = null
+    }
   }
 }
 </script>
@@ -937,107 +935,169 @@ export default {
   word-wrap: break-word;
 }
 
-.chat-input-area {
+.voice-message-bubble {
+  padding: 16px;
+  border-radius: 16px;
+  position: relative;
   background: white;
-  border-top: 1px solid #e0e0e0;
-  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.text-input-container {
-  max-width: 800px;
-  margin: 0 auto;
+.user-message .voice-message-bubble {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  border-bottom-right-radius: 4px;
 }
 
-.input-wrapper {
+.ai-message .voice-message-bubble {
+  background: white;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+.voice-controls {
   display: flex;
-  gap: 15px;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.message-input {
+.voice-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex: 1;
 }
 
-.message-input textarea {
-  border-radius: 12px;
-  border: 2px solid #e0e0e0;
-  padding: 12px 16px;
+.voice-duration {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+.voice-actions {
+  margin-left: 15px;
+}
+
+.text-message {
   font-size: 16px;
-  resize: none;
-  transition: border-color 0.3s;
+  line-height: 1.5;
 }
 
-.message-input textarea:focus {
-  border-color: #667eea;
+.voice-input-area {
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  padding: 30px 20px;
+  position: relative;
 }
 
-.send-btn {
-  height: 45px;
-  padding: 0 20px;
-  border-radius: 12px;
-  font-size: 16px;
+.voice-input-area::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-radius: 2px;
 }
 
-.voice-input-container {
+.voice-controls {
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
 }
 
 .voice-status {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   font-size: 16px;
   color: #666;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 500;
 }
 
 .voice-buttons {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 20px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .record-btn, .stop-btn, .play-btn {
-  width: 60px;
-  height: 60px;
-  font-size: 24px;
+  width: 80px;
+  height: 80px;
+  font-size: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
 .record-btn {
-  background: #ff4757;
+  background: linear-gradient(45deg, #ff4757, #ff6b7a);
   border-color: #ff4757;
+  animation: pulse 2s infinite;
 }
 
-.record-btn:hover {
-  background: #ff3838;
+.record-btn:hover, .record-btn:focus {
+  background: linear-gradient(45deg, #ff3838, #ff5252);
+  transform: scale(1.05);
 }
 
 .stop-btn {
-  background: #2ed573;
+  background: linear-gradient(45deg, #2ed573, #7bed9f);
   border-color: #2ed573;
+  animation: recording-pulse 1s infinite;
 }
 
 .play-btn {
-  background: #5352ed;
+  background: linear-gradient(45deg, #5352ed, #7c4dff);
   border-color: #5352ed;
 }
 
-.send-voice-btn {
-  height: 45px;
-  padding: 0 20px;
-  border-radius: 12px;
+.send-voice-btn, .cancel-btn {
+  height: 50px;
+  padding: 0 25px;
+  border-radius: 25px;
   font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.cancel-btn {
-  height: 45px;
-  padding: 0 20px;
-  border-radius: 12px;
-  font-size: 16px;
+.send-voice-btn {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-color: #667eea;
+}
+
+.send-voice-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(255, 71, 87, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
+  }
+}
+
+@keyframes recording-pulse {
+  0% {
+    box-shadow: 0 4px 20px rgba(46, 213, 115, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(46, 213, 115, 0.7);
+  }
+  100% {
+    box-shadow: 0 4px 20px rgba(46, 213, 115, 0.4);
+  }
 }
 
 /* 响应式设计 */

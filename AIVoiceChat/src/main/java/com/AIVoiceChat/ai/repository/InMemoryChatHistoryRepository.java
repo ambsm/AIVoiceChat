@@ -53,6 +53,17 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
         return chatHistory.getOrDefault(type, List.of());
     }
 
+    /**
+     * 保存语音聊天历史记录
+     * @param chatId
+     * @param result
+     */
+    @Override
+    public void saveVoice(String chatId, HashMap<String, Object> result) {
+        //保存到voice-history.json中 结构为 {chatId: [List<HashMap>]}
+
+    }
+
 
     @PostConstruct
     private void init() {

@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -29,5 +30,10 @@ public class RedisChatHistory implements ChatHistoryRepository {
             return Collections.emptyList();
         }
         return chatIds.stream().sorted(String::compareTo).toList();
+    }
+
+    @Override
+    public void saveVoice(String chatId, HashMap<String, Object> result) {
+
     }
 }

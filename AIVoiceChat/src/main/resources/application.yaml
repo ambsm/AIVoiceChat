@@ -41,4 +41,14 @@ asr:
   azure:
     subscription-key: your-azure-subscription-key  # Azure 语音服务订阅密钥
     region: eastus                                  # Azure 服务区域
+  aliyun:
+    access-key-id: LTAI5tSdc2mjXwX599WW91Pa        # 阿里云AccessKey ID
+    access-key-secret: 257WOqcKc7A8RsK3wokO4WdwkY2p9Z # 阿里云AccessKey Secret
+    app-key: Nom6NzshXiZVRIbI                  # 阿里云语音识别AppKey
+    region-id: cn-shanghai                     # 阿里云区域 ID
+    endpoint: nls-filetrans.cn-shanghai.aliyuncs.com # 阿里云录音文件识别端点
+    oss:
+      bucket-name: kczx-interview              # OSS存储桶名称
+      endpoint: oss-cn-hangzhou.aliyuncs.com   # OSS端点
+      url-prefix: https://kczx-interview.oss-cn-hangzhou.aliyuncs.com # OSS访问URL前缀
   temp-dir: temp/audio               # 临时文件目录

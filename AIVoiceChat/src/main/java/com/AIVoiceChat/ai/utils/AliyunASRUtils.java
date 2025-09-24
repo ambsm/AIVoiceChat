@@ -309,7 +309,7 @@ public class AliyunASRUtils {
     /**
      * 上传文件到OSS
      */
-    private String uploadToOSS(File file, String originalFilename) throws Exception {
+    public String uploadToOSS(File file, String originalFilename) throws Exception {
         OSS ossClient = null;
         try {
             // 创建OSSClient
@@ -358,7 +358,7 @@ public class AliyunASRUtils {
     /**
      * 调用阿里云语音识别API
      */
-    private String callAliyunASRAPI(String fileUrl) {
+    public String callAliyunASRAPI(String fileUrl) {
         try {
             logger.info("开始调用阿里云语音识别API，文件URL: {}", fileUrl);
             
@@ -558,8 +558,8 @@ public class AliyunASRUtils {
                         return "识别成功但结果为空";
                     } else if ("RUNNING".equals(statusText) || "QUEUEING".equals(statusText)) {
                         // 任务还在运行
-                        logger.info("任务状态: {}，等待5秒后重试...", statusText);
-                        Thread.sleep(5000);
+                        logger.info("任务状态: {}，等待1秒后重试...", statusText);
+                        Thread.sleep(1000);
                         continue;
                     } else {
                         // 任务失败或其他状态
@@ -840,7 +840,7 @@ public class AliyunASRUtils {
     /**
      * 保存文件到临时目录
      */
-    private File saveToTempFile(MultipartFile file) throws IOException {
+    public File saveToTempFile(MultipartFile file) throws IOException {
         // 创建临时目录
         File tempDirFile = new File(tempDir);
         if (!tempDirFile.exists()) {
