@@ -2,6 +2,7 @@ package com.AIVoiceChat.ai.service;
 
 import com.AIVoiceChat.ai.entity.dto.Character;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author 马卓航
  * @since 2025-09-25
  */
+@Service
 public interface ICharacterService extends IService<Character> {
 
 }

@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("character")
+@TableName("`character`") // 👈 用反引号包裹
 public class Character implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -51,8 +51,7 @@ public class Character implements Serializable {
     private String promt;
 
     /**
-     * 音色
-声音模型
+     * 声音模型
      */
     private String voiceModel;
 

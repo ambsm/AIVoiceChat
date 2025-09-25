@@ -1,9 +1,11 @@
 package com.AIVoiceChat.ai.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import com.AIVoiceChat.ai.entity.Result;
+import com.AIVoiceChat.ai.service.IChatSessionService;
+import com.AIVoiceChat.ai.service.impl.ChatSessionServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -17,4 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/chat-session")
 public class ChatSessionController {
 
+    @Autowired
+    private ChatSessionServiceImpl chatService;
+    /**
+     * 生成会话id
+     * @param CharacterId 人物
+     * @return chatId
+     */
+    @GetMapping("/generateChatId")
+    public Result generateChatId(@RequestParam int CharacterId) {
+        return chatService.generateChatId( CharacterId);
+    }
 }

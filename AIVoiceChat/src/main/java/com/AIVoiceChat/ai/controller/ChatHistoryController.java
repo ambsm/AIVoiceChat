@@ -1,6 +1,7 @@
 package com.AIVoiceChat.ai.controller;
 
 
+import com.AIVoiceChat.ai.entity.Result;
 import com.AIVoiceChat.ai.entity.vo.MessageVO;
 import com.AIVoiceChat.ai.repository.ChatHistoryRepository;
 import com.AIVoiceChat.ai.repository.InMemoryChatHistoryRepository;
@@ -34,8 +35,8 @@ public class ChatHistoryController {
      * @return chatId列表
      */
     @GetMapping("/{type}")
-    public List<String> getChatIds(@PathVariable("type") String type) {
-        return chatHistoryRepository.getChatIds("chat");
+    public Result getChatIds(@PathVariable("type") String type) {
+        return Result.success(chatHistoryRepository.getChatIds("chat"));
     }
 
     /**
@@ -45,7 +46,7 @@ public class ChatHistoryController {
      * @return 指定会话的历史消息（包含文本和语音）
      */
     @GetMapping("/{type}/{chatId}")
-    public List<MessageVO> getChatHistory(@PathVariable("type") String type, @PathVariable("chatId") String chatId) {
+    public Result getChatHistory(@PathVariable("type") String type, @PathVariable("chatId") String chatId) {
         // 获取聊天历史记录
         List<Message> messages = chatMemory.get(chatId, Integer.MAX_VALUE);
         List<MessageVO> result = new ArrayList<>();
@@ -68,7 +69,7 @@ public class ChatHistoryController {
             result.add(voiceMessageVO);
         }
 
-        return result;
+        return Result.success(result);
     }
 
     /**
@@ -77,7 +78,7 @@ public class ChatHistoryController {
      * @return 指定会话的语音历史记录
      */
     @GetMapping("/voice/{chatId}")
-    public List<HashMap<String, Object>> getVoiceHistory(@PathVariable("chatId") String chatId) {
-        return inMemoryChatHistoryRepository.getVoiceHistory(chatId);
+    public Result getVoiceHistory(@PathVariable("chatId") String chatId) {
+        return Result.success(inMemoryChatHistoryRepository.getVoiceHistory(chatId));
     }
 }

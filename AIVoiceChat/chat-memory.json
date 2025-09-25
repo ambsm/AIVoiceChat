@@ -33,5 +33,23 @@
       "index" : 0,
       "id" : "chatcmpl-fd356bcb-3152-473c-bf52-96f8b709adde"
     }
+  } ],
+  "chat_1758779258648_10yfe7fg8" : [ {
+    "messageType" : "USER",
+    "text" : "说话啊一家有我这有。嗯。",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "*举起酒杯，豪气干云地大笑*\n\n哈哈，好！有酒便是家，有你便是友。来来来，共饮此杯，看那明月当空，何须多言？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-a5389d81-33ff-440d-b398-252505440d26"
+    }
   } ]
 }

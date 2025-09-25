@@ -21,37 +21,17 @@
       </div>
 
       <!-- 角色选择区域 -->
-      <div class="characters-grid">
-        <div 
-          v-for="character in characters" 
+      <div
+        class="characters-grid"
+        :style="{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '80px 200px' }"
+      >
+        <CharacterCard
+          v-for="character in characters"
           :key="character.id"
-          class="character-card card"
-          @click="selectCharacter(character)"
-        >
-          <div class="character-avatar">
-            {{ character.avatar }}
-          </div>
-          <h3 class="character-name">{{ character.name }}</h3>
-          <p class="character-desc">{{ character.description }}</p>
-          <div class="character-tags">
-            <el-tag 
-              v-for="tag in character.tags" 
-              :key="tag" 
-              size="mini" 
-              type="info"
-              class="character-tag"
-            >
-              {{ tag }}
-            </el-tag>
-          </div>
-          <el-button 
-            type="primary" 
-            class="chat-btn btn-primary"
-            @click.stop="startChat(character)"
-          >
-            开始聊天
-          </el-button>
-        </div>
+          :character="character"
+          @select="selectCharacter"
+          @start="startChat"
+        />
       </div>
     </div>
 
@@ -89,27 +69,79 @@
 </template>
 
 <script>
+import CharacterCard from '@/components/CharacterCard.vue'
 import { chatService } from '@/services/chatService'
 
 export default {
   name: 'Home',
+  components: { CharacterCard },
   data() {
     return {
       showHistoryDialog: false,
       historyLoading: false,
       chatHistoryList: [],
-      characters: [
-        {
-          id: 'voice-ai',
-          name: 'AI语音助手',
-          avatar: '🎤',
-          description: '智能语音AI助手，支持流畅的语音对话交互',
-          tags: ['语音', 'AI', '智能', '交互']
-        }
-      ]
+      characters: []
     }
   },
+  async created() {
+    // 页面创建时加载角色信息
+    await this.loadCharacters()
+  },
   methods: {
+    async loadCharacters() {
+      try {
+        // 从后端获取角色分页数据
+        const characterData = await chatService.getCharacterPage(1, 100)
+        console.log('获取到的角色数据:', characterData)
+        
+        // 处理角色数据
+        if (characterData && Array.isArray(characterData.records)) {
+          this.characters = characterData.records.map(character => ({
+            id: character.id,
+            name: character.name || '未知角色',
+            avatar: character.avatar || '🤖',
+            image: character.image,
+            description: character.description || '暂无描述',
+            tags: character.tags ? character.tags.split(',') : ['AI角色']
+          }))
+        } else if (characterData && typeof characterData === 'object') {
+          // 如果返回的是对象格式，尝试直接使用
+          this.characters = [characterData].map(character => ({
+            id: character.id,
+            name: character.name || '未知角色',
+            avatar: character.avatar || '🤖',
+            image: character.image,
+            description: character.description || '暂无描述',
+            tags: character.tags ? character.tags.split(',') : ['AI角色']
+          }))
+        } else {
+          // 如果没有获取到数据，使用默认角色
+          this.characters = [
+            {
+              id: 'voice-ai',
+              name: 'AI语音助手',
+              avatar: '🎤',
+              description: '智能语音AI助手，支持流畅的语音对话交互',
+              tags: ['语音', 'AI', '智能', '交互']
+            }
+          ]
+        }
+      } catch (error) {
+        console.error('加载角色信息失败:', error)
+        // 出错时使用默认角色
+        this.characters = [
+          {
+            id: 'voice-ai',
+            name: 'AI语音助手',
+            avatar: '🎤',
+            description: '智能语音AI助手，支持流畅的语音对话交互',
+            tags: ['语音', 'AI', '智能', '交互']
+          }
+        ]
+        this.$message.error('加载角色信息失败，使用默认角色')
+      }
+    },
+    
     selectCharacter(character) {
       console.log('选择角色:', character)
     },
@@ -173,14 +205,19 @@ export default {
 <style scoped>
 .home-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f5f5f5; /* 去除彩色渐变背景 */
+  padding: 0 200px; /* 屏幕左右留白 200px */
+}
+
+/* 全局兜底，确保没有渐变透出 */
+:root, html, body, #app {
+  background: #f5f5f5 !important;
 }
 
 .navbar {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0 20px;
+  background: #ffffff; /* 去除透明以免透出渐变 */
+  border-bottom: 1px solid #e6e6e6;
+  padding: 0; /* 留白由外层 home-container 控制 */
 }
 
 .nav-content {
@@ -193,26 +230,24 @@ export default {
 }
 
 .logo {
-  color: white;
+  color: #333;
   font-size: 24px;
   font-weight: 600;
   margin: 0;
 }
 
-.history-btn {
-  color: white !important;
-  font-size: 16px;
-}
+.history-btn { font-size: 16px; }
 
 .history-btn:hover {
   color: #f0f0f0 !important;
 }
 
 .main-content {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 40px 0; /* 左右由外层控制 */
+  width: 100%; /* 占满外层容器，保证左右恒定 200px */
 }
+@media (max-width: 1024px) { .home-container { padding: 0 80px; } }
+@media (max-width: 640px) { .home-container { padding: 0 16px; } }
 
 .hero-section {
   text-align: center;
@@ -220,31 +255,39 @@ export default {
 }
 
 .hero-title {
-  color: white;
+  color: #333;
   font-size: 36px;
   font-weight: 600;
   margin-bottom: 15px;
 }
 
 .hero-subtitle {
-  color: rgba(255, 255, 255, 0.8);
+  color: #666;
   font-size: 18px;
   margin: 0;
 }
 
 .characters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  display: grid !important; /* 防止被其他样式覆盖为 block/flex */
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 固定三列并允许收缩 */
+  gap: 24px;
   margin-top: 40px;
 }
+@media (max-width: 1024px) {
+  .characters-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) { .characters-grid { grid-template-columns: 1fr; } }
 
 .character-card {
+  width: auto; /* 由网格列控制宽度 */
   padding: 30px;
-  text-align: center;
+  text-align: left; /* 文本左对齐 */
   cursor: pointer;
   transition: all 0.3s ease;
   border: 2px solid transparent;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .character-card:hover {
@@ -254,9 +297,19 @@ export default {
 }
 
 .character-avatar {
-  font-size: 60px;
-  margin-bottom: 20px;
+  width: 120px; /* 固定头像容器，避免大图撑满页面 */
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 20px auto; /* 水平居中头像 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
+@media (max-width: 480px) {
+  .character-avatar { width: 96px; height: 96px; }
+}
+
 
 .character-name {
   color: #333;
@@ -270,10 +323,12 @@ export default {
   font-size: 16px;
   line-height: 1.6;
   margin-bottom: 20px;
+  min-height: 60px;
 }
 
 .character-tags {
   margin-bottom: 25px;
+  min-height: 30px;
 }
 
 .character-tag {
@@ -285,6 +340,8 @@ export default {
   height: 40px;
   font-size: 16px;
   font-weight: 500;
+  display: block;
+  margin: 12px auto 0; /* 水平居中按钮 */
 }
 
 .history-dialog {
@@ -347,5 +404,13 @@ export default {
   margin: 0;
   color: #666;
   font-size: 14px;
+}
+
+.character-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover; /* 充满并裁剪，避免变形与溢出 */
+  object-position: center;
 }
 </style>

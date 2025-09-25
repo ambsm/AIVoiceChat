@@ -12,7 +12,10 @@
           返回
         </el-button>
         <div class="character-info">
-          <span class="character-avatar">{{ currentCharacter.avatar }}</span>
+          <span class="character-avatar" style="width:32px;height:32px;border-radius:50%;overflow:hidden;display:inline-block;">
+            <img v-if="currentCharacter.image" :src="currentCharacter.image" :alt="currentCharacter.name" class="header-character-image" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+            <span v-else>{{ currentCharacter.avatar }}</span>
+          </span>
           <div class="character-details">
             <h3 class="character-name">{{ currentCharacter.name }}</h3>
             <p class="chat-status">{{ chatStatus }}</p>
@@ -38,7 +41,10 @@
         <div class="messages-wrapper">
           <!-- 欢迎消息 -->
           <div v-if="messages.length === 0" class="welcome-message">
-            <div class="welcome-avatar">{{ currentCharacter.avatar }}</div>
+            <div class="welcome-avatar" :style="{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden' }">
+              <img v-if="currentCharacter.image" :src="currentCharacter.image" :alt="currentCharacter.name" class="character-image" :style="{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }" />
+              <span v-else>{{ currentCharacter.avatar }}</span>
+            </div>
             <div class="welcome-text">
               <h4>你好！我是{{ currentCharacter.name }}</h4>
               <p>{{ currentCharacter.description }}</p>
@@ -52,8 +58,11 @@
             :key="index"
             :class="['message-item', message.role === 'user' ? 'user-message' : 'ai-message']"
           >
-            <div class="message-avatar">
+            <div class="message-avatar" :style="{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden' }">
               <span v-if="message.role === 'user'">👤</span>
+              <span v-else-if="currentCharacter.image" style="width:48px;height:48px;border-radius:50%;overflow:hidden;display:block;">
+                <img :src="currentCharacter.image" :alt="currentCharacter.name" class="message-character-image" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+              </span>
               <span v-else>{{ currentCharacter.avatar }}</span>
             </div>
             <div class="message-content">
@@ -90,8 +99,11 @@
           
           <!-- 加载中消息 -->
           <div v-if="isLoading" class="message-item ai-message">
-            <div class="message-avatar">
-              <span>{{ currentCharacter.avatar }}</span>
+            <div class="message-avatar" :style="{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden' }">
+              <span v-if="currentCharacter.image" style="width:48px;height:48px;border-radius:50%;overflow:hidden;display:block;">
+                <img :src="currentCharacter.image" :alt="currentCharacter.name" class="message-character-image" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+              </span>
+              <span v-else>{{ currentCharacter.avatar }}</span>
             </div>
             <div class="message-content">
               <div class="message-bubble loading-bubble">
@@ -316,6 +328,9 @@ export default {
     initializeChat() {
       // 从路由参数获取chatId
       this.chatId = this.$route.query.chatId || this.generateChatId()
+      
+      // 加载角色信息
+      this.loadCharacters()
       
       // 如果是查看历史记录模式
       if (this.$route.query.viewHistory) {
@@ -741,6 +756,33 @@ export default {
       } finally {
         this.historyLoading = false
       }
+    },
+    
+    async loadCharacters() {
+      try {
+        // 从后端获取角色分页数据
+        const characterData = await chatService.getCharacterPage(1, 100)
+        console.log('获取到的角色数据:', characterData)
+        
+        // 处理角色数据
+        if (characterData && Array.isArray(characterData.records)) {
+          // 将角色数据转换为以id为键的对象
+          const charactersMap = {}
+          characterData.records.forEach(character => {
+            charactersMap[character.id] = {
+              id: character.id,
+              name: character.name || '未知角色',
+              avatar: character.avatar || '🤖',
+              image: character.image, // 添加image字段
+              description: character.description || '暂无描述'
+            }
+          })
+          this.charactersData = { ...this.charactersData, ...charactersMap }
+        }
+      } catch (error) {
+        console.error('加载角色信息失败:', error)
+        // 出错时不影响现有角色数据
+      }
     }
   },
   
@@ -765,7 +807,7 @@ export default {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  background: #f5f5f5; /* 与 Home 一致的浅灰背景 */
 }
 
 .chat-header {
@@ -797,6 +839,13 @@ export default {
 .character-avatar {
   font-size: 32px;
   margin-right: 12px;
+}
+
+.header-character-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .character-details h3 {
@@ -845,8 +894,21 @@ export default {
 }
 
 .welcome-avatar {
-  font-size: 48px;
-  margin-right: 20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-avatar .character-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .welcome-text {
@@ -883,13 +945,29 @@ export default {
 }
 
 .message-avatar {
-  width: 40px;
-  height: 40px;
+  width: 48px; /* 固定消息头像大小 */
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  -webkit-clip-path: circle(50% at 50% 50%);
+  clip-path: circle(50% at 50% 50%);
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 20px;
-  margin: 0 10px;
+  align-items: center;
+  font-size: 28px;
+  margin-right: 12px;
+  align-self: flex-end;
+}
+
+/* 确保嵌套的 span/img 继承容器尺寸，避免原图撑大 */
+.message-avatar > span { display: block; width: 100%; height: 100%; border-radius: 50%; }
+.message-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+/* 提升优先级，强制圆形（适配 scoped 环境与第三方样式） */
+::v-deep .message-avatar,
+::v-deep .message-avatar > span,
+::v-deep .message-avatar img {
+  border-radius: 50% !important;
 }
 
 /* 用户消息的头像应该显示在右侧 */
@@ -923,7 +1001,7 @@ export default {
 }
 
 .user-message .message-bubble {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #667eea; /* 去除渐变，使用纯色 */
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -1099,7 +1177,7 @@ export default {
 }
 
 .user-message .voice-message-bubble {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #667eea; /* 去除渐变，使用纯色 */
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -1191,24 +1269,24 @@ export default {
 }
 
 .record-btn {
-  background: linear-gradient(45deg, #ff4757, #ff6b7a);
+  background: #ff4757; /* 纯色 */
   border-color: #ff4757;
   animation: pulse 2s infinite;
 }
 
 .record-btn:hover, .record-btn:focus {
-  background: linear-gradient(45deg, #ff3838, #ff5252);
+  background: #ff3838;
   transform: scale(1.05);
 }
 
 .stop-btn {
-  background: linear-gradient(45deg, #2ed573, #7bed9f);
+  background: #2ed573; /* 纯色 */
   border-color: #2ed573;
   animation: recording-pulse 1s infinite;
 }
 
 .play-btn {
-  background: linear-gradient(45deg, #5352ed, #7c4dff);
+  background: #5352ed; /* 纯色 */
   border-color: #5352ed;
 }
 
@@ -1222,7 +1300,7 @@ export default {
 }
 
 .send-voice-btn {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #667eea; /* 纯色 */
   border-color: #667eea;
 }
 
@@ -1285,5 +1363,42 @@ export default {
     flex-wrap: wrap;
     gap: 10px;
   }
+}
+
+.message-character-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.welcome-avatar .character-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.header-character-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 覆盖可能来自其他页面的渐变背景 */
+:root, html, body, #app, .chat-container, .chat-main, .chat-messages {
+  background: #f5f5f5 !important;
+}
+
+</style>
+
+<style>
+/* 非 scoped 全局兜底，确保移除任何外部渐变背景 */
+html, body, #app {
+  background: #f5f5f5 !important;
 }
 </style>

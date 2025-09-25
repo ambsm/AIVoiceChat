@@ -11,5 +11,9 @@ export default {
 </script>
 
 <style>
-/* 全局样式已在 main.js 中引入 */
+/* 全局兜底：统一移除 body 上的渐变背景 */
+html, body, #app {
+  background: #f5f5f5 !important;
+  min-height: 100vh;
+}
 </style>
