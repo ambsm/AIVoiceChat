@@ -14,4 +14,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IChatSessionService extends IService<ChatSession> {
     public Result generateChatId(int characterId);
+
+    String getStytem(String characterId);
+
+    ChatSession getByChatName(String chatId);
 }

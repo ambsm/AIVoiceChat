@@ -34,8 +34,14 @@ logging:
 unifiedtts:
   api:
     base-url: https://unifiedtts.com  # UnifiedTTS API 基础URL
-    key: tts_3tDHk25CPDC0grMTCjJgu75AVErZO7H5azsSctN5LOw            # 您的API Key
-
+    key: tts_HnWMH-_JDa1s473k6g8GnVBOdbbUzNzAfrbSJJZs95o            # 您的API Key
+aliyun:
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com # 你的Endpoint
+    access-key-id: LTAI5t7SYH2mNQEMbRAYVpZ8
+    access-key-secret: vfkHZPKPcscvVX7IQ3I6iA0Fly7KkG
+    bucket-name: kczx-interview
+    url-expire-time: 3600 # 签名URL有效时间（秒）
 # ASR (语音识别) 服务配置
 asr:
   service:
@@ -56,4 +62,5 @@ asr:
       bucket-name: kczx-interview              # OSS存储桶名称
       endpoint: oss-cn-hangzhou.aliyuncs.com   # OSS端点
       url-prefix: https://kczx-interview.oss-cn-hangzhou.aliyuncs.com # OSS访问URL前缀
+      url-expire-time: 3600 # 签名URL有效时间（秒）
   temp-dir: temp/audio               # 临时文件目录

@@ -1,7 +1,6 @@
 package com.AIVoiceChat.ai.repository;
 
 import com.AIVoiceChat.ai.entity.po.Msg;
-import com.AIVoiceChat.ai.repository.ChatHistoryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

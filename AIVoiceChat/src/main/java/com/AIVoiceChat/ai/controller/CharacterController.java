@@ -32,5 +32,11 @@ public class CharacterController {
         Page<Character> page = new Page<>(currentPage, pageSize);
         return Result.success(characterService.page(page));
     }
-
+    /**
+     * 创建角色
+     */
+    @RequestMapping("/create")
+    public Result create(Character character) {
+        return characterService.save(character) ? Result.success() : Result.error("创建角色失败");
+    }
 }

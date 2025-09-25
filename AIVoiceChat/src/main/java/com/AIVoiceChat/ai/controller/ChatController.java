@@ -2,11 +2,14 @@ package com.AIVoiceChat.ai.controller;
 
 import cn.hutool.json.JSONObject;
 import com.AIVoiceChat.ai.entity.Result;
+import com.AIVoiceChat.ai.entity.dto.Character;
+import com.AIVoiceChat.ai.entity.dto.ChatSession;
 import com.AIVoiceChat.ai.repository.ChatHistoryRepository;
+import com.AIVoiceChat.ai.service.impl.CharacterServiceImpl;
+import com.AIVoiceChat.ai.service.impl.ChatSessionServiceImpl;
 import com.AIVoiceChat.ai.utils.AliyunASRUtils;
 import com.AIVoiceChat.ai.utils.TTSUtils;
 import com.AIVoiceChat.ai.utils.UnifiedttsUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,38 +27,48 @@ import java.util.Objects;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/ai")
 public class ChatController {
+    private final ChatClient chatClient;
+    private final ChatHistoryRepository chatHistoryRepository;
+    
     @Autowired
     private TTSUtils ttsUtils;
 
     @Autowired
     AliyunASRUtils aliyunASRUtils;
 
-    private final ChatClient chatClient;
+    @Autowired
+    private ChatSessionServiceImpl chatSessionService;
 
-    private final ChatHistoryRepository chatHistoryRepository;
-
-
-    @RequestMapping(value = "/chat", produces = "text/html;charset=utf-8")
-    public Flux<String> chat(
-            @RequestParam("prompt") String prompt,
-            @RequestParam("chatId") String chatId,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
-        // 1.保存会话id
-        chatHistoryRepository.save("chat", chatId);
-        // 2.请求模型
-        if (files == null || files.isEmpty()) {
-            // 没有附件，纯文本聊天
-            return textChat(prompt, chatId);
-        } else {
-            // 有附件，多模态聊天
-            return multiModalChat(prompt, chatId, files);
-        }
-
+    @Autowired
+    private CharacterServiceImpl characterService;
+    
+    // 手动添加构造函数
+    public ChatController(ChatClient chatClient, ChatHistoryRepository chatHistoryRepository) {
+        this.chatClient = chatClient;
+        this.chatHistoryRepository = chatHistoryRepository;
     }
+
+//
+//    @RequestMapping(value = "/chat", produces = "text/html;charset=utf-8")
+//    public Flux<String> chat(
+//            @RequestParam("prompt") String prompt,
+//            @RequestParam("chatId") String chatId,
+//            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+//        // 1.保存会话id
+//        chatHistoryRepository.save("chat", chatId,"");
+//        // 2.请求模型
+//        if (files == null || files.isEmpty()) {
+//            // 没有附件，纯文本聊天
+//            return textChat(prompt, chatId);
+//        } else {
+//            // 有附件，多模态聊天
+//            return multiModalChat(prompt, chatId, files);
+//        }
+//
+//    }
     /**
      * 语音聊天
      * @param voiceFile
@@ -75,18 +88,25 @@ public class ChatController {
         String fileUrl = aliyunASRUtils.uploadToOSS(tempFile, voiceFile.getOriginalFilename());
         String prompt = aliyunASRUtils.callAliyunASRAPI(fileUrl);
         //此处也使用流式传输时因为防止过长时间无响应导致连接断开
-        Flux<String> stringFlux = textChat(prompt, chatId);
+        ChatSession chatSession=chatSessionService.getByChatName(chatId);
+        if (chatSession == null) {
+            return Result.error("chatId不存在");
+        }
+        Character character = characterService.getById(chatId);
+        Flux<String> stringFlux = textChat(prompt, chatId,character.getPromt());
         String fullResponse = stringFlux.collect(StringBuilder::new,
                         (sb, s) -> sb.append(s))
                 .map(StringBuilder::toString)
                 .block(); // ⚠️ 仍然阻塞，但你明确需要完整结果
-        JSONObject entries = ttsUtils.convertTextToSpeechByLiba(fullResponse);
+        JSONObject entries = ttsUtils.convertTextToSpeechByLiba(fullResponse,character);
         HashMap<String, Object> result = new HashMap<>();
         try {
             Map<String, Object> dataMap = entries.getBean("data", Map.class);
             Object o = dataMap.get("audio_url");
             result.put("agentVoice", o);
             result.put("userVoice", fileUrl);
+            // 添加时间戳
+            result.put("timestamp", System.currentTimeMillis());
             chatHistoryRepository.saveVoice(chatId, result);
             return Result.success(result);
         } catch (Exception e){
@@ -113,8 +133,9 @@ public class ChatController {
                 .content();
     }
 
-    private Flux<String> textChat(String prompt, String chatId) {
+    private Flux<String> textChat(String prompt, String chatId ,String systemPrompt) {
         return chatClient.prompt()
+                .system(systemPrompt)
                 .user(prompt)
                 .advisors(a -> a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
                 .stream()

@@ -5,6 +5,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.core.io.FileUtil;
+import com.AIVoiceChat.ai.entity.dto.Character;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -563,23 +564,13 @@ public class TTSUtils {
     }
 
     /**
-     * 将文字转换为语音
-     *
-     * @param text 要转换的文字
-     * @return 转换后的语音文件
-     */
-    public static File convertTextToSpeech(String text) {
-        return new File("转换后的语音文件");
-    }
-
-    /**
      * 通过李白的tts来转换文字为语音
      */
-    public  JSONObject convertTextToSpeechByLiba(String text) {
+    public  JSONObject convertTextToSpeechByLiba(String text, Character character) {
         JSONObject result = unifiedttsUtils.textToSpeech(
                 text,
-                "cosyvoice-v2",
-                "libai_v2",
+                character.getVoiceModel(),
+                character.getVoice(),
                 1.0,
                 1.0,
                 ""

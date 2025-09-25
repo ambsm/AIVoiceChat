@@ -18,6 +18,7 @@
       <div class="hero-section">
         <h2 class="hero-title">AI语音聊天助手</h2>
         <p class="hero-subtitle">与AI进行纯语音对话，体验自然的语音交互</p>
+        <el-button type="primary" size="small" @click="showCreateDialog = true">新建人物</el-button>
       </div>
 
       <!-- 角色选择区域 -->
@@ -36,6 +37,49 @@
     </div>
 
     <!-- 聊天历史对话框 -->
+    <el-dialog
+      title="新建人物"
+      :visible.sync="showCreateDialog"
+      width="600px"
+    >
+      <el-form :model="createForm" label-width="90px">
+        <el-form-item label="名称">
+          <el-input v-model.trim="createForm.name" placeholder="如：李白" />
+        </el-form-item>
+        <el-form-item label="头像URL">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <el-input v-model.trim="createForm.image" placeholder="图片链接，可为空" />
+            <el-upload
+              :show-file-list="false"
+              :before-upload="() => false"
+              :on-change="onPickImage">
+              <el-button size="small">选择</el-button>
+            </el-upload>
+            <el-button size="small" type="primary" :loading="uploading" @click="doUpload" :disabled="!pickedFile">上传</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input type="textarea" :rows="4" v-model.trim="createForm.description" placeholder="人物简介" />
+        </el-form-item>
+        <el-form-item label="提示词">
+          <el-input type="textarea" :rows="3" v-model.trim="createForm.promt" placeholder="openapi 字段 promt（人物提示词）" />
+        </el-form-item>
+        <el-form-item label="声音模型">
+          <el-input v-model.trim="createForm.voiceModel" placeholder="voiceModel（稍后可改为下拉）" />
+        </el-form-item>
+        <el-form-item label="音色">
+          <el-input v-model.trim="createForm.voice" placeholder="voice（稍后可改为下拉）" />
+        </el-form-item>
+        <el-form-item label="标签">
+          <el-input v-model.trim="createForm.tags" placeholder="逗号分隔，如：语音,AI" />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showCreateDialog = false">取 消</el-button>
+        <el-button type="primary" :loading="creating" @click="handleCreate">确 定</el-button>
+      </span>
+    </el-dialog>
+
     <el-dialog 
       title="聊天历史" 
       :visible.sync="showHistoryDialog"
@@ -78,6 +122,11 @@ export default {
   data() {
     return {
       showHistoryDialog: false,
+      showCreateDialog: false,
+      creating: false,
+      uploading: false,
+      pickedFile: null,
+      createForm: { name: '', image: '', description: '', promt: '', voiceModel: '', voice: '', tags: '' },
       historyLoading: false,
       chatHistoryList: [],
       characters: []
@@ -94,20 +143,23 @@ export default {
         const characterData = await chatService.getCharacterPage(1, 100)
         console.log('获取到的角色数据:', characterData)
         
-        // 处理角色数据
-        if (characterData && Array.isArray(characterData.records)) {
-          this.characters = characterData.records.map(character => ({
+        // 处理角色数据（兼容 result 包裹）
+        const payload = characterData && characterData.data ? characterData.data : characterData
+        if (payload && Array.isArray(payload.records)) {
+          this.characters = payload.records.map(character => ({
             id: character.id,
+            characterId: character.characterId != null ? character.characterId : character.id,
             name: character.name || '未知角色',
             avatar: character.avatar || '🤖',
             image: character.image,
             description: character.description || '暂无描述',
             tags: character.tags ? character.tags.split(',') : ['AI角色']
           }))
-        } else if (characterData && typeof characterData === 'object') {
+        } else if (payload && typeof payload === 'object') {
           // 如果返回的是对象格式，尝试直接使用
-          this.characters = [characterData].map(character => ({
+          this.characters = [payload].map(character => ({
             id: character.id,
+            characterId: character.characterId != null ? character.characterId : character.id,
             name: character.name || '未知角色',
             avatar: character.avatar || '🤖',
             image: character.image,
@@ -146,25 +198,26 @@ export default {
       console.log('选择角色:', character)
     },
     
-    startChat(character) {
-      // 生成新的聊天ID
-      const chatId = this.generateChatId()
-      this.$router.push({
-        name: 'Chat',
-        params: { 
-          characterId: character.id 
-        },
-        query: {
-          chatId: chatId,
-          characterName: character.name,
-          voiceOnly: true // 标记为纯语音模式
+    async startChat(character) {
+      try {
+        // 通过后端接口生成 chatId
+        const chatId = await this.$services.chat.generateChatId(character.characterId || character.id)
+        if (!chatId) {
+          this.$message.error('获取会话ID失败')
+          return
         }
-      })
+        this.$router.push({
+          name: 'Chat',
+          params: { characterId: character.id },
+          query: { chatId, characterName: character.name, voiceOnly: true }
+        })
+      } catch (e) {
+        console.error('生成会话ID失败', e)
+        this.$message.error('生成会话ID失败')
+      }
     },
     
-    generateChatId() {
-      return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-    },
+    generateChatId() { return 'deprecated' },
     
     async loadChatHistory() {
       try {
@@ -189,6 +242,56 @@ export default {
         query: { chatId, viewHistory: true }
       })
       this.showHistoryDialog = false
+    },
+
+    async handleCreate() {
+      if (!this.createForm.name) {
+        this.$message.error('请输入名称')
+        return
+      }
+      this.creating = true
+      try {
+        await this.$services.chat.createCharacter({
+          name: this.createForm.name,
+          image: this.createForm.image,
+          description: this.createForm.description,
+          promt: this.createForm.promt,
+          voiceModel: this.createForm.voiceModel,
+          voice: this.createForm.voice
+        })
+        this.$message.success('创建成功')
+        this.showCreateDialog = false
+        this.createForm = { name: '', image: '', description: '', promt: '', voiceModel: '', voice: '', tags: '' }
+        await this.loadCharacters()
+      } catch (e) {
+        console.error(e)
+        this.$message.error('创建失败')
+      } finally {
+        this.creating = false
+      }
+    },
+
+    onPickImage(file) {
+      this.pickedFile = file.raw || file
+    },
+
+    async doUpload() {
+      if (!this.pickedFile) return
+      this.uploading = true
+      try {
+        const url = await this.$services.chat.uploadFile(this.pickedFile)
+        if (typeof url === 'string') {
+          this.createForm.image = url
+          this.$message.success('上传成功')
+        } else {
+          this.$message.error('上传失败')
+        }
+      } catch (e) {
+        console.error(e)
+        this.$message.error('上传失败')
+      } finally {
+        this.uploading = false
+      }
     }
   },
   
