@@ -32,11 +32,66 @@
           :character="character"
           @select="selectCharacter"
           @start="startChat"
+          @edit="openEdit"
+          @delete="confirmDelete"
         />
       </div>
     </div>
 
     <!-- 聊天历史对话框 -->
+  <el-dialog
+    title="修改人物"
+    :visible.sync="showEditDialog"
+    width="600px"
+  >
+    <el-form :model="editForm" label-width="90px">
+      <el-form-item label="ID">
+        <el-input v-model="editForm.id" disabled />
+      </el-form-item>
+      <el-form-item label="名称">
+        <el-input v-model.trim="editForm.name" />
+      </el-form-item>
+      <el-form-item label="头像URL">
+        <el-input v-model.trim="editForm.image" />
+      </el-form-item>
+      <el-form-item label="描述">
+        <el-input type="textarea" :rows="4" v-model.trim="editForm.description" />
+      </el-form-item>
+      <el-form-item label="提示词">
+        <el-input type="textarea" :rows="3" v-model.trim="editForm.promt" />
+      </el-form-item>
+      <el-form-item label="声音模型">
+        <el-select v-model="editForm.voiceModel" placeholder="请选择模型" filterable @change="loadVoicesEdit">
+          <el-option v-for="m in ttsModels" :key="m" :label="m" :value="m" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="音色">
+        <el-select v-model="editForm.voice" placeholder="请选择音色" filterable :disabled="!editForm.voiceModel" :loading="voicesLoading">
+          <el-option
+            v-for="v in voices"
+            :key="v.voiceId || v"
+            :label="(v.voiceName || v.voiceId || v)"
+            :value="v.voiceId || v"
+          >
+            <div class="voice-item">
+              <div class="voice-meta">
+                <span class="voice-name">{{ v.voiceName || v.voiceId }}</span>
+                <span class="voice-id">{{ v.voiceId }}</span>
+              </div>
+              <div class="voice-desc">
+                <span class="lang">{{ languageIcon(v.language) }}</span>
+                <span class="text">{{ v.description }}</span>
+              </div>
+            </div>
+          </el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="showEditDialog = false">取 消</el-button>
+      <el-button type="primary" @click="handleUpdate">保 存</el-button>
+    </span>
+  </el-dialog>
     <el-dialog
       title="新建人物"
       :visible.sync="showCreateDialog"
@@ -65,10 +120,31 @@
           <el-input type="textarea" :rows="3" v-model.trim="createForm.promt" placeholder="openapi 字段 promt（人物提示词）" />
         </el-form-item>
         <el-form-item label="声音模型">
-          <el-input v-model.trim="createForm.voiceModel" placeholder="voiceModel（稍后可改为下拉）" />
+          <el-select v-model="createForm.voiceModel" placeholder="请选择模型" filterable @change="loadVoices">
+            <el-option v-for="m in ttsModels" :key="m" :label="m" :value="m" />
+          </el-select>
+          <el-button type="text" size="mini" @click="fetchModels" :loading="modelsLoading" style="margin-left:8px">刷新</el-button>
         </el-form-item>
         <el-form-item label="音色">
-          <el-input v-model.trim="createForm.voice" placeholder="voice（稍后可改为下拉）" />
+          <el-select v-model="createForm.voice" placeholder="请选择音色" filterable :disabled="!createForm.voiceModel" :loading="voicesLoading">
+            <el-option
+              v-for="v in voices"
+              :key="v.voiceId || v"
+              :label="(v.voiceName || v.voiceId || v)"
+              :value="v.voiceId || v"
+            >
+              <div class="voice-item">
+                <div class="voice-meta">
+                  <span class="voice-name">{{ v.voiceName || v.voiceId }}</span>
+                  <span class="voice-id">{{ v.voiceId }}</span>
+                </div>
+                <div class="voice-desc">
+                  <span class="lang">{{ languageIcon(v.language) }}</span>
+                  <span class="text">{{ v.description }}</span>
+                </div>
+              </div>
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="标签">
           <el-input v-model.trim="createForm.tags" placeholder="逗号分隔，如：语音,AI" />
@@ -126,7 +202,13 @@ export default {
       creating: false,
       uploading: false,
       pickedFile: null,
+      ttsModels: [],
+      voices: [],
+      modelsLoading: false,
+      voicesLoading: false,
       createForm: { name: '', image: '', description: '', promt: '', voiceModel: '', voice: '', tags: '' },
+      showEditDialog: false,
+      editForm: { id: '', name: '', image: '', description: '', promt: '', voiceModel: '', voice: '' },
       historyLoading: false,
       chatHistoryList: [],
       characters: []
@@ -135,6 +217,7 @@ export default {
   async created() {
     // 页面创建时加载角色信息
     await this.loadCharacters()
+    this.fetchModels()
   },
   methods: {
     async loadCharacters() {
@@ -153,6 +236,9 @@ export default {
             avatar: character.avatar || '🤖',
             image: character.image,
             description: character.description || '暂无描述',
+            promt: character.promt || character.prompt || '',
+            voiceModel: character.voiceModel || character.model || '',
+            voice: character.voice || character.voiceId || '',
             tags: character.tags ? character.tags.split(',') : ['AI角色']
           }))
         } else if (payload && typeof payload === 'object') {
@@ -164,6 +250,9 @@ export default {
             avatar: character.avatar || '🤖',
             image: character.image,
             description: character.description || '暂无描述',
+            promt: character.promt || character.prompt || '',
+            voiceModel: character.voiceModel || character.model || '',
+            voice: character.voice || character.voiceId || '',
             tags: character.tags ? character.tags.split(',') : ['AI角色']
           }))
         } else {
@@ -271,6 +360,46 @@ export default {
       }
     },
 
+    async fetchModels() {
+      this.modelsLoading = true
+      try {
+        const models = await this.$services.chat.getTTSModels()
+        // openapi 未定义数据结构细节，兼容数组或对象
+        this.ttsModels = Array.isArray(models) ? models : (models?.list || models?.data || [])
+      } catch (e) { console.warn(e); this.ttsModels = [] } finally { this.modelsLoading = false }
+    },
+
+    async loadVoices() {
+      if (!this.createForm.voiceModel) { this.voices = []; return }
+      this.voicesLoading = true
+      try {
+        const vs = await this.$services.chat.getVoicesByModel(this.createForm.voiceModel)
+        this.voices = Array.isArray(vs) ? vs : (vs?.list || vs?.data || [])
+      } catch (e) { console.warn(e); this.voices = [] } finally { this.voicesLoading = false }
+    },
+
+    async loadVoicesEdit() {
+      if (!this.editForm.voiceModel) { this.voices = []; return }
+      this.voicesLoading = true
+      try {
+        const vs = await this.$services.chat.getVoicesByModel(this.editForm.voiceModel)
+        this.voices = Array.isArray(vs) ? vs : (vs?.list || vs?.data || [])
+      } catch (e) { console.warn(e); this.voices = [] } finally { this.voicesLoading = false }
+    },
+
+    languageIcon(lang) {
+      const m = (lang || '').toLowerCase()
+      if (m === 'zh') return '🀄'
+      if (m === 'en') return '🇺🇸'
+      if (m === 'es') return '🇪🇸'
+      if (m === 'fr') return '🇫🇷'
+      if (m === 'de') return '🇩🇪'
+      if (m === 'it') return '🇮🇹'
+      if (m === 'th') return '🇹🇭'
+      if (m === 'id') return '🇮🇩'
+      return '🌐'
+    },
+
     onPickImage(file) {
       this.pickedFile = file.raw || file
     },
@@ -291,6 +420,58 @@ export default {
         this.$message.error('上传失败')
       } finally {
         this.uploading = false
+      }
+    },
+
+    // 打开修改弹窗
+    openEdit(character) {
+      this.editForm = {
+        id: character.id,
+        name: character.name,
+        image: character.image,
+        description: character.description,
+        promt: character.promt || '',
+        voiceModel: character.voiceModel || '',
+        voice: character.voice || ''
+      }
+      this.showEditDialog = true
+    },
+
+    // 保存修改
+    async handleUpdate() {
+      if (!this.editForm.id) {
+        this.$message && this.$message.error && this.$message.error('缺少ID')
+        return
+      }
+      try {
+        await this.$services.chat.updateCharacter(this.editForm)
+        this.$message && this.$message.success && this.$message.success('修改成功')
+        this.showEditDialog = false
+        await this.loadCharacters()
+      } catch (e) {
+        console.error(e)
+        this.$message && this.$message.error && this.$message.error('修改失败')
+      }
+    },
+
+    // 确认删除
+    confirmDelete(character) {
+      const doDelete = async () => {
+        try {
+          await this.$services.chat.deleteCharacter(character.id)
+          this.$message && this.$message.success && this.$message.success('已删除')
+          await this.loadCharacters()
+        } catch (e) {
+          console.error(e)
+          this.$message && this.$message.error && this.$message.error('删除失败')
+        }
+      }
+      if (this.$confirm && typeof this.$confirm === 'function') {
+        this.$confirm(`确定删除「${character.name}」吗？`, '提示', { type: 'warning' })
+          .then(doDelete)
+          .catch(() => {})
+      } else {
+        if (window.confirm(`确定删除「${character.name}」吗？`)) doDelete()
       }
     }
   },
@@ -516,4 +697,16 @@ export default {
   object-fit: cover; /* 充满并裁剪，避免变形与溢出 */
   object-position: center;
 }
+</style>
+
+<style scoped>
+.voice-item { display:flex; flex-direction: column; line-height: 1.4; }
+.voice-meta { display:flex; gap:8px; align-items:center; }
+.voice-name { font-weight: 600; color:#333; }
+.voice-id { color:#999; font-size:12px; }
+.voice-desc { display:flex; gap:6px; align-items:center; color:#666; font-size:12px; margin-top:2px; }
+.voice-desc .lang { width:16px; text-align:center; }
+/* 增加下拉项的垂直高度与可读性 */
+::v-deep .el-select-dropdown__item { padding-top: 8px; padding-bottom: 8px; line-height: 1.6; }
+::v-deep .el-select-dropdown__item .voice-item { padding: 4px 0; }
 </style>

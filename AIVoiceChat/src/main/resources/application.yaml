@@ -34,7 +34,7 @@ logging:
 unifiedtts:
   api:
     base-url: https://unifiedtts.com  # UnifiedTTS API 基础URL
-    key: tts_HnWMH-_JDa1s473k6g8GnVBOdbbUzNzAfrbSJJZs95o            # 您的API Key
+    key: tts_XufzdwlpBACgWkfYRPMhID--RBVjCSl0z52aDnpt5LM            # 您的API Key
 aliyun:
   oss:
     endpoint: oss-cn-hangzhou.aliyuncs.com # 你的Endpoint

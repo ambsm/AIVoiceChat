@@ -566,18 +566,16 @@ public class TTSUtils {
     /**
      * 通过李白的tts来转换文字为语音
      */
-    public  JSONObject convertTextToSpeechByLiba(String text, Character character) {
-        JSONObject result = unifiedttsUtils.textToSpeech(
+    public Map<String, Object> convertTextToSpeechByLiba(String text, Character character) {
+        Map<String, Object> result = unifiedttsUtils.textToSpeech(
                 text,
                 character.getVoiceModel(),
                 character.getVoice(),
                 1.0,
                 1.0,
                 ""
-
         );
         return result;
-
     }
 
 }

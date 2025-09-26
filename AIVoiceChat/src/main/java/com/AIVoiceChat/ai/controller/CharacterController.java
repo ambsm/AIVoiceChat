@@ -39,4 +39,18 @@ public class CharacterController {
     public Result create(Character character) {
         return characterService.save(character) ? Result.success() : Result.error("创建角色失败");
     }
+    /**
+     * 修改角色
+     */
+    @RequestMapping("/update")
+    public Result update(Character character) {
+        return characterService.updateById(character) ? Result.success() : Result.error("修改角色失败");
+    }
+    /**
+     * 删除角色
+     */
+    @RequestMapping("/delete")
+    public Result delete(Integer id) {
+        return characterService.removeById(id) ? Result.success() : Result.error("删除角色失败");
+    }
 }

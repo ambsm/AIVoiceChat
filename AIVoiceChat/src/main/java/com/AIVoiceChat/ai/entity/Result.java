@@ -1,8 +1,13 @@
 package com.AIVoiceChat.ai.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 统一响应结果封装类
  */
+@Setter
+@Getter
 public class Result {
     private Integer code ;//1 成功 , 0 失败
     private String msg; //提示信息
@@ -13,24 +18,6 @@ public class Result {
     public Result(Integer code, String msg, Object data) {
         this.code = code;
         this.msg = msg;
-        this.data = data;
-    }
-    public Integer getCode() {
-        return code;
-    }
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-    public String getMsg() {
-        return msg;
-    }
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-    public Object getData() {
-        return data;
-    }
-    public void setData(Object data) {
         this.data = data;
     }
 

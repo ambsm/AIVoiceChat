@@ -98,10 +98,10 @@ public class ChatController {
                         (sb, s) -> sb.append(s))
                 .map(StringBuilder::toString)
                 .block(); // ⚠️ 仍然阻塞，但你明确需要完整结果
-        JSONObject entries = ttsUtils.convertTextToSpeechByLiba(fullResponse,character);
+        Map<String, Object> entries = ttsUtils.convertTextToSpeechByLiba(fullResponse,character);
         HashMap<String, Object> result = new HashMap<>();
         try {
-            Map<String, Object> dataMap = entries.getBean("data", Map.class);
+            Map<String, Object> dataMap = (Map<String, Object>) entries.get("data");
             Object o = dataMap.get("audio_url");
             result.put("agentVoice", o);
             result.put("userVoice", fileUrl);

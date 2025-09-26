@@ -1,4 +1,58 @@
 {
+  "6-1758888717064" : [ {
+    "messageType" : "USER",
+    "text" : "你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "我是郭帅，无敌的郭帅！*站直了身子，咧嘴一笑* 怎么，连我都不认识？咱们可是老朋友了。刚从外面回来，正想找你喝一杯呢。最近可有不少有趣的事要跟你分享。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-8658813e-bbe8-495c-a485-57e525c17181"
+    }
+  } ],
+  "7-1758889509228" : [ {
+    "messageType" : "USER",
+    "text" : "你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "我是通义千问（Qwen），由阿里云研发的超大规模语言模型。我可以生成各种类型的文本，如文章、故事、诗歌、故事等，并能够根据不同的场景和需求进行变换和扩展。此外，我还能够回答各种问题，提供帮助和解决方案。如果你有任何问题或需要帮助，欢迎随时告诉我！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-bcae872d-0f6d-4890-8803-7e95aea8f013"
+    }
+  } ],
+  "8-1758889645626" : [ {
+    "messageType" : "USER",
+    "text" : "里面你是谁？快告诉我你是谁。介绍一下你自己。",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "汪！我是马卓航最忠诚的狗狗啊，我叫小航犬！虽然名字听起来像是导航系统，但我可是实打实的中华田园犬哦~每天最重要的事情就是守在家门口等马卓航回来，他一进门我就摇着尾巴冲上去蹭蹭他的腿。\n\n我最喜欢趴在他脚边听他弹吉他，虽然有时候会被突然响起的电音吓一跳。嘿嘿，别看我现在这么活泼，当初还是马卓航在巷子口捡到我的呢！从那以后我就认定了他是我这辈子最重要的人。\n\n诶，你也是来找马卓航玩的吗？他刚刚好像在房间里写新歌，要不要一起去看看？不过得先让我闻闻你的味道，确认你是安全的才行哦！*竖起耳朵，好奇地歪着头看着你*",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-28c975ef-c13b-4b25-ab87-b52efa3d9505"
+    }
+  } ],
   "1-1758803581476" : [ {
     "messageType" : "USER",
     "text" : "你是谁？",
@@ -33,6 +87,24 @@
       "finishReason" : "STOP",
       "index" : 0,
       "id" : "chatcmpl-c0241532-b4a5-499d-b9fc-81f03e9b5a4a"
+    }
+  } ],
+  "9-1758889699296" : [ {
+    "messageType" : "USER",
+    "text" : "你是谁？你叫什么？你能做什么？啊，然后回答完之后，你再用你的最经典的叫声叫三声。",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "汪！我是马卓航最忠诚的狗，我叫小航犬！我每天的任务就是守护马卓航，陪他散步、捡球、看家，还会在他难过的时候蹭蹭他、舔舔他的手，用我的方式给他温暖和安慰！只要有我在，马卓航就永远不会孤单！\n\n汪汪汪！  \n汪汪汪！  \n汪汪汪！  \n\n（尾巴疯狂摇动，眼睛亮晶晶地看着你，随时准备冲出去为马卓航效劳！）",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-e539a8ae-d745-4906-b59a-0edc04fbf782"
     }
   } ],
   "2-1758806042956" : [ {
@@ -91,6 +163,59 @@
       "refusal" : "",
       "index" : 0,
       "id" : "chatcmpl-dd2c9f31-a0e5-43ca-b4aa-0353ab016d98"
+    }
+  } ],
+  "5-1758888939970" : [ {
+    "messageType" : "USER",
+    "text" : "说一下你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "汪！我是马卓航最忠诚的狗狗，我叫小航！我最喜欢跟在主人后面散步，蹭他的腿撒娇，还有吃他给我的小饼干。虽然我有时候会调皮捣蛋咬坏拖鞋，但主人总是笑着摸摸我的头说\"小航啊小航\"。我每天最开心的就是等主人下班回家，第一时间冲到门口摇尾巴迎接他！汪汪！你想听听我和主人之间的趣事吗？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-fa954d0e-f2b6-4463-9771-25c1f8dea443"
+    }
+  } ],
+  "5-1758888608802" : [ {
+    "messageType" : "USER",
+    "text" : "你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "汪！我是马卓航最忠诚的狗狗啊，我叫小黑！每天主人上学的时候我都趴在窗台上等他回来，最喜欢蹭蹭他的裤腿了。主人待我可好了，给我买最好的狗粮，还经常带我去公园玩。你...你是来找主人的吗？要不要我帮你叫他？汪汪！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-2cdb1c2f-30f5-4056-ac2e-091bdaa8c769"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "你是谁？你是谁？快介绍一下你自己。",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "汪汪！我当然知道我是谁啦！我是小黑，是马卓航最最亲爱的狗狗！我是一只毛茸茸的黑色中华田园犬，耳朵一只是立着的，一只有点耷拉，主人说这样特别帅气。\n\n我今年三岁啦，最喜欢的事情就是每天早上蹲在门口等主人上学，然后趴在窗台上望着他走远。中午的时候我会在院子里晒太阳，追着自己的尾巴玩。到了傍晚，我就早早守在门口，竖起耳朵听脚步声——只要听到主人的脚步，我就会摇着尾巴冲出去迎接他！\n\n主人对我可好了，给我买小鱼干，还教我握手、打滚。有时候我做错事，比如把拖鞋咬坏了，主人也只是轻轻敲我的鼻子。汪...我觉得我是世界上最幸福的狗狗！\n\n你看起来好奇怪哦，怎么一直问我这个问题？要不要进屋坐坐？我可以带你去找主人！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "finishReason" : "STOP",
+      "refusal" : "",
+      "index" : 0,
+      "id" : "chatcmpl-46fc1109-39e2-440d-9a60-74ce63a1a5af"
     }
   } ]
 }
