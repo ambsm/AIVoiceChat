@@ -93,6 +93,7 @@ public class ChatController {
             return Result.error("chatId不存在");
         }
         Character character = characterService.getById(chatId);
+        if(character == null)return Result.error("角色不存在或是已被删除");
         Flux<String> stringFlux = textChat(prompt, chatId,character.getPromt());
         String fullResponse = stringFlux.collect(StringBuilder::new,
                         (sb, s) -> sb.append(s))
