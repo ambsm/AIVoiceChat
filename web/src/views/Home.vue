@@ -21,13 +21,19 @@
         <el-button type="primary" size="small" @click="showCreateDialog = true">新建人物</el-button>
       </div>
 
+      <!-- 角色搜索 -->
+      <CharacterSearch 
+        :characters="characters"
+        @search="handleSearch"
+      />
+
       <!-- 角色选择区域 -->
       <div
         class="characters-grid"
         :style="{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '80px 200px' }"
       >
         <CharacterCard
-          v-for="character in characters"
+          v-for="character in filteredCharacters"
           :key="character.id"
           :character="character"
           @select="selectCharacter"
@@ -51,8 +57,17 @@
       <el-form-item label="名称">
         <el-input v-model.trim="editForm.name" />
       </el-form-item>
-      <el-form-item label="头像URL">
-        <el-input v-model.trim="editForm.image" />
+      <el-form-item label="头像">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <el-input v-model.trim="editForm.image" placeholder="图片链接，可为空" />
+          <el-upload
+            :show-file-list="false"
+            :before-upload="() => false"
+            :on-change="onPickImageEdit">
+            <el-button size="small">选择</el-button>
+          </el-upload>
+          <el-button size="small" type="primary" :loading="uploading" @click="doUploadEdit" :disabled="!editPickedFile">上传</el-button>
+        </div>
       </el-form-item>
       <el-form-item label="描述">
         <el-input type="textarea" :rows="4" v-model.trim="editForm.description" />
@@ -185,23 +200,28 @@
         </div>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
 import CharacterCard from '@/components/CharacterCard.vue'
+import CharacterSearch from '@/components/CharacterSearch.vue'
 import { chatService } from '@/services/chatService'
 
 export default {
   name: 'Home',
-  components: { CharacterCard },
+  components: { CharacterCard, CharacterSearch },
   data() {
     return {
       showHistoryDialog: false,
       showCreateDialog: false,
+      searchQuery: '',
+      filteredCharacters: [],
       creating: false,
       uploading: false,
       pickedFile: null,
+      editPickedFile: null,
       ttsModels: [],
       voices: [],
       modelsLoading: false,
@@ -325,10 +345,14 @@ export default {
     
     viewChatHistory(chatId) {
       // 这里可以跳转到聊天页面显示历史记录
+      // 从chatId中提取chatName，假设chatId格式为 "chatName_timestamp_random"
+      // 或者直接使用chatId作为chatName进行查询
+      const chatName = chatId.split('_')[0] || chatId
+      console.log('跳转历史记录，chatId:', chatId, 'chatName:', chatName)
       this.$router.push({
         name: 'Chat',
         params: { characterId: 'history' },
-        query: { chatId, viewHistory: true }
+        query: { chatId, viewHistory: true, chatName }
       })
       this.showHistoryDialog = false
     },
@@ -423,6 +447,30 @@ export default {
       }
     },
 
+    onPickImageEdit(file) {
+      this.editPickedFile = file.raw || file
+    },
+
+    async doUploadEdit() {
+      if (!this.editPickedFile) return
+      this.uploading = true
+      try {
+        const url = await this.$services.chat.uploadFile(this.editPickedFile)
+        if (typeof url === 'string') {
+          this.editForm.image = url
+          this.$message.success('上传成功')
+        } else {
+          this.$message.error('上传失败')
+        }
+      } catch (e) {
+        console.error(e)
+        this.$message.error('上传失败')
+      } finally {
+        this.uploading = false
+        this.editPickedFile = null
+      }
+    },
+
     // 打开修改弹窗
     openEdit(character) {
       this.editForm = {
@@ -473,6 +521,29 @@ export default {
       } else {
         if (window.confirm(`确定删除「${character.name}」吗？`)) doDelete()
       }
+    },
+    
+    // 处理搜索
+    handleSearch({ query }) {
+      this.searchQuery = query
+      this.filterCharacters()
+    },
+    
+    // 过滤角色
+    filterCharacters() {
+      let filtered = [...this.characters]
+      
+      // 按搜索关键词过滤
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase()
+        filtered = filtered.filter(character => 
+          character.name.toLowerCase().includes(query) ||
+          character.description.toLowerCase().includes(query) ||
+          (character.tags && character.tags.some(tag => tag.toLowerCase().includes(query)))
+        )
+      }
+      
+      this.filteredCharacters = filtered
     }
   },
   
@@ -480,6 +551,12 @@ export default {
     showHistoryDialog(newVal) {
       if (newVal) {
         this.loadChatHistory()
+      }
+    },
+    characters: {
+      immediate: true,
+      handler() {
+        this.filterCharacters()
       }
     }
   }

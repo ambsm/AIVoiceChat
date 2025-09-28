@@ -33,6 +33,16 @@ public class ChatSessionController {
     public Result generateChatId(@RequestParam int CharacterId) {
         return chatService.generateChatId(CharacterId);
     }
+
+    /**
+     * 根据会话ID获取角色信息
+     * @param chatName 会话名
+     * @return 会话列表
+     */
+    @GetMapping("/getChatSessionList")
+    public Result getChatSessionList(@RequestParam String chatName) {
+        return chatService.getChatSessionList(chatName);
+    }
     
     /**
      * 获取TTS模型列表

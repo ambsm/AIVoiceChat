@@ -310,7 +310,9 @@ export default {
   
   computed: {
     currentCharacter() {
-      return this.charactersData[this.characterId] || {
+      const character = this.charactersData[this.characterId]
+      console.log('获取当前角色，characterId:', this.characterId, '角色数据:', character)
+      return character || {
         id: 'default',
         name: '未知角色',
         avatar: '🤖',
@@ -329,11 +331,15 @@ export default {
       // 从路由参数获取chatId
       this.chatId = this.$route.query.chatId || this.generateChatId()
       
+      console.log('初始化聊天，characterId:', this.characterId)
+      console.log('路由查询参数:', this.$route.query)
+      
       // 加载角色信息
       this.loadCharacters()
       
       // 如果是查看历史记录模式
       if (this.$route.query.viewHistory) {
+        console.log('进入历史记录模式')
         this.loadChatHistory()
       }
     },
@@ -707,6 +713,39 @@ export default {
         // 使用新的语音历史记录接口
         const history = await chatService.getVoiceChatHistory(this.chatId)
         this.chatHistory = history || []
+        
+        // 如果在查看历史模式，尝试通过chatName获取角色信息
+        if (this.$route.query.viewHistory && this.$route.query.chatName) {
+          try {
+            const sessionData = await chatService.getChatSessionList(this.$route.query.chatName)
+            console.log('获取到的会话数据:', sessionData)
+            
+            // 处理返回的数据，可能是数组或单个对象
+            let session = null
+            if (Array.isArray(sessionData) && sessionData.length > 0) {
+              session = sessionData[0]
+            } else if (sessionData && typeof sessionData === 'object') {
+              session = sessionData
+            }
+            
+            if (session) {
+              console.log('使用的会话信息:', session)
+              // 使用Vue.set确保响应式更新
+              this.$set(this.charactersData, this.characterId, {
+                id: session.id || this.characterId,
+                name: session.name || '未知角色',
+                avatar: session.avatar || '🤖',
+                image: session.image,
+                description: session.description || '暂无描述'
+              })
+              console.log('更新后的角色数据:', this.charactersData[this.characterId])
+              console.log('所有角色数据:', this.charactersData)
+              console.log('强制更新后，当前角色:', this.currentCharacter)
+            }
+          } catch (error) {
+            console.warn('获取会话角色信息失败:', error)
+          }
+        }
         
         // 为历史记录面板获取音频时长
         for (let i = 0; i < this.chatHistory.length; i++) {

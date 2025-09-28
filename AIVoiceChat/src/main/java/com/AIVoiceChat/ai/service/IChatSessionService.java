@@ -18,4 +18,6 @@ public interface IChatSessionService extends IService<ChatSession> {
     String getStytem(String characterId);
 
     ChatSession getByChatName(String chatId);
+
+    Result getChatSessionList(String type);
 }

@@ -6,6 +6,7 @@ import com.AIVoiceChat.ai.mapper.ChatSessionMapper;
 import com.AIVoiceChat.ai.service.IChatSessionService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ChatSessionServiceImpl extends ServiceImpl<ChatSessionMapper, ChatSession> implements IChatSessionService {
-
+    @Autowired
+    private CharacterServiceImpl characterService;
     /**
      * 根据人格前缀创建聊天ID
      *
@@ -45,5 +47,14 @@ public class ChatSessionServiceImpl extends ServiceImpl<ChatSessionMapper, ChatS
     @Override
     public ChatSession getByChatName(String chatId) {
         return this.getOne(new QueryWrapper<>(new ChatSession().setChatName(chatId)));
+    }
+
+    @Override
+    public Result getChatSessionList(String chatName) {
+        QueryWrapper<ChatSession> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("chat_name",chatName);
+        ChatSession one = this.getOne(queryWrapper);
+        return Result.success(characterService.getById(one.getCharacterId()));
+
     }
 }

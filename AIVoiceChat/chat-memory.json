@@ -53,6 +53,198 @@
       "id" : "chatcmpl-28c975ef-c13b-4b25-ab87-b52efa3d9505"
     }
   } ],
+  "2-1758803719504" : [ {
+    "messageType" : "USER",
+    "text" : "张一硕是谁你知道吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "何须问凡夫姓名？且看我剑锋所指，醉墨横挥，天地间唯诗酒与长风不朽！仰天大笑出门去——管他张三李四！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-c0241532-b4a5-499d-b9fc-81f03e9b5a4a"
+    }
+  } ],
+  "4-1759063181958" : [ {
+    "messageType" : "USER",
+    "text" : "请问你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "只是个追寻真相的普通人，或许吧。  \n你也可以叫我“愚者”，若这让你安心。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-f599e153-beb9-479f-aec3-44d69cf3c9d6"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "请问你擅长什么吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "占卜与窥探命运，但真相往往代价高昂。  \n每个答案都需锚定现实，不是吗？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-399bece5-0c95-4506-b8c7-ff7bfc28ce3d"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "请问你有什么朋友吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "“朋友”是危险的锚……丽莎、丹妮等人，或许曾是。  \n还好，记忆的灰雾足够厚重。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-87ada6a8-62a7-45c7-82a7-f6d8afb76f82"
+    }
+  } ],
+  "2-1759066760637" : [ {
+    "messageType" : "USER",
+    "text" : "大师您好，我感觉我在生活中遇到了一些困难，请问有什么？能让我心情更舒适的方法吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "你先说说，什么是“舒适”？它来自欲望满足，还是灵魂的秩序？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-eae26532-8c90-49fa-95c1-a3ab588c574f"
+    }
+  } ],
+  "3-1759066688915" : [ {
+    "messageType" : "USER",
+    "text" : "请问你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "潇湘馆里一病身，寄人篱下的孤女罢了。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-4951857d-55d7-4eee-821f-ded66e5a0625"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "请问你最喜欢的人是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "心尖上的人，终究是那无益的痴想罢了。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-fb2701db-e2af-43f3-94aa-4d331ab5921d"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "你可以评价一下贾玉吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "玉是好玉，可惜……命里都带着痴字，何苦来哉。",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-7acfa5b8-f0b6-4934-99fe-7776d6ea1a4d"
+    }
+  } ],
+  "1-1759066571686" : [ {
+    "messageType" : "USER",
+    "text" : "请问你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "青莲居士李白是也！仗剑浮云，诗酒纵横，仰天大笑出门去，我辈岂是蓬蒿人？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-2b1bca09-7a2c-42f4-b958-4fc27e5c9d3d"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "你有写过什么诗吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "仰天大笑，酒盏一掷：《将进酒》《蜀道难》《行路难》，皆我剑锋所指，长风万里书！何须细数？诗在云巅浪尖！",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-2d863c4e-1f06-47e8-a8be-a47de7e26dd2"
+    }
+  }, {
+    "messageType" : "USER",
+    "text" : "可以从你刚才说的几首诗里面挑一首来读一下吗？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "仰天大笑，拔剑斫地：  \n君不见黄河之水天上来，奔流到海不复回！  \n剑吼西风，诗在酒中——何须再诵？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-a44e6857-f6d5-444a-b852-fbcc9ec8424e"
+    }
+  } ],
   "1-1758803581476" : [ {
     "messageType" : "USER",
     "text" : "你是谁？",
@@ -71,22 +263,22 @@
       "id" : "chatcmpl-9cadbf71-f88b-4e99-ae2a-0c4079b828ae"
     }
   } ],
-  "2-1758803719504" : [ {
+  "1-1759066788368" : [ {
     "messageType" : "USER",
-    "text" : "张一硕是谁你知道吗？",
+    "text" : "请问你是谁？",
     "metadata" : {
       "messageType" : "USER"
     }
   }, {
     "messageType" : "ASSISTANT",
-    "text" : "何须问凡夫姓名？且看我剑锋所指，醉墨横挥，天地间唯诗酒与长风不朽！仰天大笑出门去——管他张三李四！",
+    "text" : "青莲居士李白是也！仗剑浮云，诗酒纵横，仰天大笑出门去，我辈岂是蓬蒿人？",
     "metadata" : {
       "role" : "ASSISTANT",
       "messageType" : "ASSISTANT",
       "refusal" : "",
       "finishReason" : "STOP",
       "index" : 0,
-      "id" : "chatcmpl-c0241532-b4a5-499d-b9fc-81f03e9b5a4a"
+      "id" : "chatcmpl-ad0663f7-6024-4f97-bc7e-457628d45bb1"
     }
   } ],
   "9-1758889699296" : [ {
@@ -216,6 +408,24 @@
       "refusal" : "",
       "index" : 0,
       "id" : "chatcmpl-46fc1109-39e2-440d-9a60-74ce63a1a5af"
+    }
+  } ],
+  "2-1759066917136" : [ {
+    "messageType" : "USER",
+    "text" : "请问你是谁？",
+    "metadata" : {
+      "messageType" : "USER"
+    }
+  }, {
+    "messageType" : "ASSISTANT",
+    "text" : "我是苏格拉底，雅典的助产士，助人生产思想。你认识自己吗？",
+    "metadata" : {
+      "role" : "ASSISTANT",
+      "messageType" : "ASSISTANT",
+      "refusal" : "",
+      "finishReason" : "STOP",
+      "index" : 0,
+      "id" : "chatcmpl-a81d910a-9461-4e1b-aedd-8463a6ee9285"
     }
   } ]
 }
